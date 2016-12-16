@@ -1,2 +1,4 @@
 # wxVcashGUI
-A multiplatform GUI for Vcash, the decentralized currency for the internet
+A multiplatform GUI for Vcash, a decentralized currency for the internet (https://vcash.info/).
+
+
