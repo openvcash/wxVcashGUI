@@ -27,7 +27,7 @@ using namespace wxGUI;
 bool WalletActions::encrypt(VcashApp &vcashApp, wxWindow &parent) {
     wxString title = wxT("Encrypt wallet");
     int result = wxMessageBox(
-            wxT("Encrypting your wallet keeps it safe in case it is lost or stolen. "
+            wxT("Encrypting your wallet keeps it safe in case it is lost or stolen.\n"
                 "Do you want to encrypt your wallet?"),
             title, wxYES_NO | wxICON_QUESTION | wxYES_DEFAULT, &parent);
     if(result == wxYES) {
@@ -66,6 +66,8 @@ void WalletActions::dumpHDSeed(VcashApp &vcashApp, wxWindow &parent) {
 
 std::pair<bool, std::string> WalletActions::restoreHDSeed(wxWindow &parent) {
     // toDo check that deterministic wallets are set on config.dat
+    wxString title = wxT("Create wallet");
+
     int result = wxMessageBox(
             wxT("Do you want to restore your wallet from\na backed up hierarchical deterministic seed?"),
             wxT("Restore wallet"), wxYES_NO | wxICON_QUESTION | wxYES_DEFAULT, &parent);
@@ -88,14 +90,14 @@ std::pair<bool, std::string> WalletActions::restoreHDSeed(wxWindow &parent) {
         } else {
             wxMessageBox(
                     wxT("You did not provide a hierarchical deterministic seed."),
-                    wxT("Create wallet"), wxOK | wxICON_INFORMATION, &parent);
+                    title, wxOK | wxICON_INFORMATION, &parent);
         }
     }
     wxMessageBox(
             wxT("A new wallet will be generated.\n"
-                        "Wait until settings are enabled to do a safe\n"
-                        " back of your hierarchical deterministic seed."),
-            wxT("Create wallet"), wxOK | wxICON_INFORMATION, &parent);
+                        "Wait until wallet is loaded to do a safe\n"
+                        "back up of your hierarchical deterministic seed."),
+            title, wxOK | wxICON_INFORMATION, &parent);
     return std::make_pair(false, "");
 }
 
@@ -108,7 +110,7 @@ bool WalletActions::changePassword(VcashApp &vcashApp, wxWindow &parent) {
         wxMessageBox(
                 wxT("In order to change your password, you need to provide your\n"
                      "old password firstly.\n"
-                     "Do a safe back up of your new password. Once encrypted, you \n"
+                     "Do a safe back up of your new password. Once encrypted, you\n"
                      "will not be able to use your funds without the password."),
                 title, wxOK | wxICON_INFORMATION, &parent);
 
@@ -175,7 +177,7 @@ DumpHDSeedDlg::DumpHDSeedDlg(VcashApp &vcashApp, wxWindow &parent)
 
 
     wxBoxSizer *hbox = new wxBoxSizer(wxVERTICAL);
-    int border = 5;
+    int border = 10;
     if(!seed.empty()) {
         hbox->Add(new wxStaticText(this, wxID_ANY, warning), 0, wxALL, border);
         seedCtrl->SetToolTip(warning);
