@@ -24,6 +24,7 @@
 #include "HistoryPage.h"
 #include "MainFrame.h"
 #include "MiningPage.h"
+#include "Resources.h"
 #include "StatusBarWallet.h"
 #include "StatusBar.h"
 #include "ToolsPanel.h"
@@ -141,6 +142,9 @@ void View::messageBox(const std::string &msg, const std::string &title, long sty
 
 void View::notificationBox(const std::string &msg, const std::string &title) {
     wxNotificationMessage *notificationMessage = new wxNotificationMessage(wxString(title), wxString(msg), mainFrame);
+	#if wxMAJOR_VERSION >= 3
+	notificationMessage->SetIcon(Resources::vcashIcon);
+	#endif
     notificationMessage->Show(2);
 }
 
