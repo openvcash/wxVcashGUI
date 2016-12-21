@@ -124,7 +124,12 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
 
     listCtrl->InsertColumn(Icon, wxT(""), wxLIST_FORMAT_CENTER, 30);
     listCtrl->InsertColumn(Date, wxT("Date"), wxLIST_FORMAT_LEFT, 135);
-    listCtrl->InsertColumn(Status, wxT("Status"), wxLIST_FORMAT_LEFT, 125);
+	#if defined (__WXMSW__)
+	#define STATUS_WIDTH 115
+	#else
+	#define STATUS_WIDTH 125
+	#endif	
+    listCtrl->InsertColumn(Status, wxT("Status"), wxLIST_FORMAT_LEFT, STATUS_WIDTH);
     listCtrl->InsertColumn(Amount, wxT("Amount"), wxLIST_FORMAT_LEFT, 130);
 
     wxSizer *pageSizer = new wxBoxSizer(wxHORIZONTAL);
