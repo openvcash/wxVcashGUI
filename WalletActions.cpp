@@ -200,7 +200,8 @@ DumpHDSeedDlg::DumpHDSeedDlg(VcashApp &vcashApp, wxWindow &parent)
     }
 
     hbox->Add(seedCtrl, 1, wxALL, border);
-    hbox->Add(closeButton);
+    hbox->Add(closeButton, wxSizerFlags().Center());
+    hbox->AddSpacer(border);
 
     SetSizerAndFit(hbox);
 

@@ -47,10 +47,11 @@ EntryDialog::EntryDialog( wxWindow &parent, const wxString &title
 
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     hbox->Add(okButton);
+    hbox->AddSpacer(10);
     hbox->Add(cancelButton);
 
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-    vbox->Add(fgs, 1, wxALIGN_CENTER | wxALL, 20);
+    vbox->Add(fgs, 1, wxALIGN_CENTER  | wxALL, 20);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
 
     SetSizerAndFit(vbox);
