@@ -267,6 +267,18 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
                 view.setTotal(local);
                 view.setEstimated(peer);
 
+                double percentD ;
+                try {
+                    percentD = std::stod(percent);
+                }
+                catch(std::exception& e) {
+                    percentD = 0.0;
+                }
+
+                if(percentD < 100) {
+                    view.setStatusBarMessage("Downloading blocks: "+Utils::formatted(percentD, 2)+" %");
+                }
+
                 goto end;
             }
         } else if(type == "database") {
