@@ -20,8 +20,8 @@
 #include "MiningPage.h"
 #include "VcashApp.h"
 
-#define startT wxT("start")
-#define stopT wxT("stop")
+#define startT wxT("Start")
+#define stopT wxT("Stop")
 
 using namespace wxGUI;
 
@@ -32,6 +32,7 @@ MiningPage::MiningPage(VcashApp &vcashApp, wxWindow &parent)
     vcashApp.view.miningPage = this;
 
     mining = new wxButton(this, wxID_ANY, startT);
+    setMining(isMining);
 
     wxSizer *pageSizer = new wxBoxSizer(wxHORIZONTAL);
     pageSizer->AddStretchSpacer(1);
@@ -50,6 +51,7 @@ MiningPage::MiningPage(VcashApp &vcashApp, wxWindow &parent)
 void MiningPage::setMining(bool b) {
     isMining = b;
     mining->SetLabelText(isMining ? stopT : startT);
+    mining->SetToolTip(isMining ? wxT("Stop mining") : wxT("Start mining"));
 }
 
 bool MiningPage::getMining() {
