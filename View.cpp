@@ -142,7 +142,7 @@ void View::messageBox(const std::string &msg, const std::string &title, long sty
 
 void View::notificationBox(const std::string &msg, const std::string &title) {
     wxNotificationMessage *notificationMessage = new wxNotificationMessage(wxString(title), wxString(msg), mainFrame);
-	#if wxMAJOR_VERSION >= 3
+	#if (wxMAJOR_VERSION >= 3) && (wxMINOR_VERSION >= 1)
 	notificationMessage->SetIcon(Resources::vcashIcon);
 	#endif
     notificationMessage->Show(2);
