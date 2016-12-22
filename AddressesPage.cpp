@@ -19,6 +19,7 @@
 #endif
 
 #include "AddressesPage.h"
+#include "BlockExplorer.h"
 #include "ToolsFrame.h"
 #include "VcashApp.h"
 
@@ -83,11 +84,16 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
         long index = event.GetIndex();
 
         enum PopupMenu {
-            Copy, Explorer, New, QR
+            Copy, BlockExperts, VcashExplorer, New, QR
         };
+
+        wxMenu *explorers = new wxMenu();;
+        explorers->Append(BlockExperts, wxT("Block Experts"));
+        explorers->Append(VcashExplorer, wxT("Vcash Explorer"));
+
         wxMenu popupMenu;
+        popupMenu.AppendSubMenu(explorers, wxT("&Block explorer"));
         popupMenu.Append(Copy, wxT("&Copy"));
-        popupMenu.Append(Explorer, wxT("&Block explorer"));
         popupMenu.Append(New, wxT("&New"));
         popupMenu.Append(QR, wxT("&QR Code"));
 
@@ -108,17 +114,25 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
                 }
                 break;
             }
-            case Explorer: {
-                wxString address = addresses->GetItemText(index, Address);
-                wxString url = "https://www.blockexperts.com/xvc/address/" + address;
-                wxLaunchDefaultBrowser(url);
+
+            case BlockExperts: {
+                std::string address = addresses->GetItemText(index, Address).ToStdString();
+                wxLaunchDefaultBrowser(BlockExperts::addressURL(address));
                 break;
             }
+
+            case VcashExplorer: {
+                std::string address = addresses->GetItemText(index, Address).ToStdString();
+                wxLaunchDefaultBrowser(VcashExplorer::addressURL(address));
+                break;
+            }
+
             case New: {
                 wxString account = addresses->GetItemText(index, Account);
                 vcashApp.controller.onConsoleCommandEntered("getnewaddress " + account.ToStdString());
                 break;
             }
+
             case QR:
                 //toDo: generate QR code
                 break;

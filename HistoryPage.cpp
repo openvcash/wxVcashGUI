@@ -19,6 +19,7 @@
 #include <wx/menu.h>
 #endif
 
+#include "BlockExplorer.h"
 #include "HistoryPage.h"
 #include "Resources.h"
 #include "VcashApp.h"
@@ -165,10 +166,15 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
 
         if (index >= 0) {
             enum PopupMenu {
-                BlockExplorer, Copy, Info, Lock
+                BlockExperts, VcashExplorer, Copy, Info, Lock
             };
+
+            wxMenu *explorers = new wxMenu();;
+            explorers->Append(BlockExperts, wxT("Block Experts"));
+            explorers->Append(VcashExplorer, wxT("Vcash Explorer"));
+
             wxMenu popupMenu;
-            popupMenu.Append(BlockExplorer, wxT("&Block explorer"));
+            popupMenu.AppendSubMenu(explorers, wxT("&Block explorer"));
             popupMenu.Append(Copy, wxT("&Copy"));
             popupMenu.Append(Info, wxT("&Information"));
             popupMenu.Append(Lock, wxT("&Lock"));
@@ -178,10 +184,15 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
                                    wxLIST_STATE_FOCUSED | wxLIST_STATE_SELECTED);
 
             switch (select) {
-                case BlockExplorer: {
+                case BlockExperts: {
                     std::string txid = *((std::string *) listCtrl->GetItemData(index));
-                    std::string url = "https://www.blockexperts.com/xvc/tx/" + txid;
-                    wxLaunchDefaultBrowser(url);
+                    wxLaunchDefaultBrowser(BlockExperts::transactionURL(txid));
+                    break;
+                }
+
+                case VcashExplorer: {
+                    std::string txid = *((std::string *) listCtrl->GetItemData(index));
+                    wxLaunchDefaultBrowser(VcashExplorer::transactionURL(txid));
                     break;
                 }
 

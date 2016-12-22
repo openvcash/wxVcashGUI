@@ -56,6 +56,7 @@ VCASH_CXXFLAGS = /M$(__RUNTIME_LIBS_10)$(__DEBUGRUNTIME_4) /DWIN32 \
 VCASH_OBJECTS =  \
 	$(OBJS)\AccountPage.obj \
 	$(OBJS)\AddressesPage.obj \
+	$(OBJS)\BlockExplorer.obj \
 	$(OBJS)\ConsolePage.obj \
 	$(OBJS)\Controller.obj \
 	$(OBJS)\EntryDialog.obj \
@@ -434,6 +435,8 @@ $(OBJS)\AccountPage.obj: .\AccountPage.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\AccountPage.cpp
 $(OBJS)\AddressesPage.obj: .\AddressesPage.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\AddressesPage.cpp
+$(OBJS)\BlockExplorer.obj: .\BlockExplorer.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\BlockExplorer.cpp
 $(OBJS)\ConsolePage.obj: .\ConsolePage.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\ConsolePage.cpp
 $(OBJS)\Controller.obj: .\Controller.cpp
