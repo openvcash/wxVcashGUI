@@ -92,6 +92,10 @@ void View::addAddress(const std::string &account, const std::string &address) {
     addressesPage->addAddress(account, address);
 }
 
+void View::emboldenAddress(const std::string &address, bool bold) {
+    addressesPage->emboldenAddress(address, bold);
+}
+
 // Console
 
 // apends a new line of text to console output

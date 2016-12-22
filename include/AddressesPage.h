@@ -22,6 +22,7 @@
 #include <wx/window.h>
 #endif
 
+#include <map>
 #include <vector>
 
 namespace wxGUI {
@@ -33,10 +34,13 @@ namespace wxGUI {
         AddressesPage(VcashApp &vcashApp, wxWindow &parent);
 
         void addAddress(const std::string &account, const std::string &address);
+        void emboldenAddress(const std::string &address, bool bold = true);
 
     private:
-        wxListCtrl *addresses;
+        wxListCtrl *listCtrl;
         enum Column { Account, Address };
+
+        std::map<std::string, int> addresses; // from address to id
 
         struct SortData {
             AddressesPage *addressesPage;

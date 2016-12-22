@@ -89,6 +89,7 @@ namespace wxGUI {
 
         // Address book
         void addAddress(const std::string &account, const std::string &address);
+        void emboldenAddress(const std::string &address, bool bold = true);
 
         // Messages and notifications
         void messageBox(const std::string &msg, const std::string &title, long style);

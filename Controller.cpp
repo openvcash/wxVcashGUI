@@ -56,6 +56,11 @@ public:
         else
             return std::string("");
     }
+
+    static bool isPrefix(const std::string &prefix, const std::string &str) {
+        auto res = std::mismatch(prefix.begin(), prefix.end(), str.begin());
+        return (res.first == prefix.end());
+    }
 };
 
 wxStack::wxStack(View &view)
@@ -276,22 +281,32 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
                 }
 
                 if(percentD < 100) {
-                    view.setStatusBarMessage("Downloading blocks: "+Utils::formatted(percentD, 2)+" %");
+                    view.setStatusBarMessage("Downloading blocks: "+Utils::formatted(percentD, 2)+"%");
                 }
 
                 goto end;
             }
         } else if(type == "database") {
-            std::string blockchainMoneySupply = Utils::find("blockchain.money_supply", pairs);
-            if(!blockchainMoneySupply.empty()) {
-                view.setSupply(blockchainMoneySupply); //TODO: isn't working
-                goto end;
-            }
-
             std::string value = Utils::find("value", pairs);
-            if(!value.empty()) {
+            if(Utils::isPrefix("Verifying", value) ||
+               Utils::isPrefix("Loaded", value) ||
+               Utils::isPrefix("Loading", value) ||
+               Utils::isPrefix("Opening", value)
+              ) {
                 view.setStatusBarMessage(value);
                 goto end;
+            } else if (value == "Importing blockchain...") {
+                std::string blockchainImport = Utils::find("blockchain.import", pairs);
+                if(!blockchainImport.empty()) {
+                    view.setStatusBarMessage("Importing blockchain: "+blockchainImport+" blocks");
+                    goto end;
+                }
+            } else {
+                std::string blockchainMoneySupply = Utils::find("blockchain.money_supply", pairs);
+                if(!blockchainMoneySupply.empty()) {
+                    view.setSupply(blockchainMoneySupply);
+                    goto end;
+                }
             }
         } else if(type == "mining") {
             std::string value = Utils::find("value", pairs);
@@ -301,20 +316,22 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
                 goto end;
             }
         } else if(type == "network") {
-            std::string tcp = Utils::find("network.tcp.connections", pairs);
-            if(!tcp.empty()) {
-                view.setTCP(tcp);
-                std::string value = Utils::find("value", pairs);
+            std::string value = Utils::find("value", pairs);
+            if(value == "Connecting" || value == "Connected") {
+                view.setStatusBarMessage(value);
+                std::string tcp = Utils::find("network.tcp.connections", pairs);
+                if (!tcp.empty()) {
+                    view.setTCP(tcp);
+                }
+                std::string udp = Utils::find("network.udp.connections", pairs);
+                if (!udp.empty()) {
+                    view.setUDP(udp);
+                }
+                goto end;
+            } else if (value == "Loading network addresses" ||
+                       value == "Loaded network addresses") {
                 view.setStatusBarMessage(value);
                 goto end;
-            } else {
-                std::string udp = Utils::find("network.udp.connections", pairs);
-                if(!udp.empty()) {
-                    view.setUDP(udp);
-                    std::string value = Utils::find("value", pairs);
-                    view.setStatusBarMessage(value);
-                    goto end;
-                }
             }
         } else if(type == "transaction") {
             std::string errorCode = Utils::find("error.code", pairs);
@@ -329,12 +346,48 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
             goto end;
         } else if(type == "wallet") {
             std::string value = Utils::find("value", pairs);
-            if(value=="Loaded wallet") {
+
+            if(value == "address") {
+                // main wallet address
+                std::string mainAddress = Utils::find("wallet.address", pairs);
+                if(!mainAddress.empty()) {
+                    view.emboldenAddress(mainAddress, true);
+                    goto end;
+                }
+            } else if(value == "change_passphrase") {
+                std::string code = Utils::find("error.code", pairs);
+                if(code == "0" && stack.wallet_is_locked()) { // double check
+                    view.setWalletStatus(Locked);
+                    goto end;
+                }
+            } else if(value == "encrypt") {
+                std::string code = Utils::find("error.code", pairs);
+                if(code == "0" && stack.wallet_is_locked()) { // double check
+                    view.setWalletStatus(Locked);
+                    goto end;
+                }
+            } else if(value == "lock") {
+                std::string code = Utils::find("error.code", pairs);
+                if(code == "0" && stack.wallet_is_locked()) { // double check
+                    view.setWalletStatus(Locked);
+                    goto end;
+                }
+            } else if(value == "unlock") {
+                std::string code = Utils::find("error.code", pairs);
+                if(code == "0" && !stack.wallet_is_locked()) { // double check
+                    view.setWalletStatus(Unlocked);
+                    goto end;
+                }
+            } else if(value == "Loaded wallet") {
                 // Now that wallet has been loaded, set locked/unlocked status in GUI
                 walletLoaded = true;
                 view.setWalletStatus(stack.wallet_is_crypted() ? Locked : Unencrypted);
                 goto end;
-            } else if(value=="Rescanning wallet") {
+            } else if(value == "Loading wallet") {
+                std::string status = Utils::find("wallet.status", pairs);
+                view.setStatusBarMessage(status);
+                goto end;
+            } else if(value == "Rescanning wallet") {
                 view.setStatusBarMessage(Utils::find("wallet.status", pairs));
                 goto end;
             }
@@ -342,12 +395,16 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
             std::string balance = Utils::find("wallet.balance", pairs);
             std::string unconfirmed = Utils::find("wallet.balance.unconfirmed", pairs);
             std::string stake = Utils::find("wallet.stake", pairs);
+            std::string immature = Utils::find("wallet.balance.immature", pairs);
+
             if(!balance.empty())
                 view.setBalance(formated(balance));
             if(!unconfirmed.empty())
                 view.setUnconfirmed(formated(unconfirmed));
             if(!stake.empty())
                 view.setStake(formated(stake));
+            if(!immature.empty())
+                view.setImmature(formated(immature));
             goto end;
         } else if(type == "wallet.address_book") {
             std::string value = Utils::find("value", pairs);
@@ -371,16 +428,73 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
             std::string net = Utils::find("wallet.transaction.net", pairs);
             std::string time = Utils::find("wallet.transaction.time", pairs);
 
-            if(!confirmations.empty() && !hash.empty() && !net.empty() && !time.empty() && !mainChain.empty()) {
+            /*************************************************************************
+             * A ZeroTime transaction goes through following states:
+             * 1) Tx is received:
+             *     wallet.transaction.confirmations -> 0
+             *     wallet.transaction.confirmed -> 0
+             *     wallet.transaction.in_main_chain -> 0
+             * 2) Tx is confirmed off chain:
+             *     wallet.transaction.confirmations -> 1
+             *     wallet.transaction.confirmed -> 1
+             *     wallet.transaction.in_main_chain -> 0
+             * 3) Tx is confirmed on chain:
+             *     wallet.transaction.confirmations -> 1
+             *     wallet.transaction.confirmed -> 1
+             *     wallet.transaction.in_main_chain -> 1
+             *
+             * If wallet is restarted before on chain confirmation, different states are:
+             * 1) Tx is received:
+             *     wallet.transaction.confirmations -> -1
+             *     wallet.transaction.confirmed -> 0
+             *     wallet.transaction.in_main_chain -> 0
+             * 2) Tx is confirmed off chain:
+             *     wallet.transaction.confirmations -> 0
+             *     wallet.transaction.confirmed -> 0
+             *     wallet.transaction.in_main_chain -> 0
+             * 3) Tx is confirmed on chain:
+             *     wallet.transaction.confirmations -> 1
+             *     wallet.transaction.confirmed -> 1
+             *     wallet.transaction.in_main_chain -> 1
+             */
+
+            /*************************************************************************
+             * A normal transaction goes through following states:
+             * 1) Tx is received:
+             *     wallet.transaction.confirmations -> 0
+             *     wallet.transaction.confirmed -> 0
+             *     wallet.transaction.in_main_chain -> 0             *
+             * 2) Tx is confirmed on chain:
+             *     wallet.transaction.confirmations -> 1
+             *     wallet.transaction.confirmed -> 1
+             *     wallet.transaction.in_main_chain -> 1
+             *
+             * If wallet is restarted before confirmation, different states are:
+             * 1) Tx is received:
+             *     wallet.transaction.confirmations -> -1
+             *     wallet.transaction.confirmed -> 0
+             *     wallet.transaction.in_main_chain -> 0             *
+             * 2) Tx is confirmed on chain:
+             *     wallet.transaction.confirmations -> 0
+             *     wallet.transaction.confirmed -> 0
+             *     wallet.transaction.in_main_chain -> 0
+             * 3) Tx is confirmed on chain:
+             *     wallet.transaction.confirmations -> 1
+             *     wallet.transaction.confirmed -> 1
+             *     wallet.transaction.in_main_chain -> 1
+             */
+
+            if(!confirmed.empty() && !hash.empty() && !net.empty() && !time.empty() && !mainChain.empty()) {
+                bool isConfirmed = confirmed == "1";
                 bool isOutgoing = !net.empty() && net[0] == '-';
-                bool isConfirmed = confirmations != "0";
-                bool isOnChain = mainChain != "0";
+                bool isOnChain = mainChain == "1";
                 bool isNew = value == "new";
+                bool isZeroTime = isConfirmed && !isOnChain;
 
                 std::string txMsg = isConfirmed ? (isOutgoing ? "Sent" : "Received")
                                                 : (isOutgoing ? "Sending(0/1)" : "Receiving(0/1)");
 
-                if(isConfirmed && !isOnChain)
+                if(isZeroTime)
                     txMsg += "(ZT)"; // is confirmed but off chain (ZeroTime)
 
                 std::time_t txTime = (std::time_t) atoll(time.c_str());
@@ -401,7 +515,6 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
         std::cout << "* " << iterator->first << " -> " << iterator->second << std::endl;
     }
     std::cout << "********************************************************" << std::endl << std::endl;
-
     end:
         ;
     //wxMutexGuiLeave();
@@ -412,4 +525,4 @@ void Controller::rescanWallet() {
     // It seems it only rescans main address in restored wallet
     stack.rescan_chain();
     view.mainFrame->Destroy();
-};
+}
