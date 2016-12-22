@@ -114,7 +114,7 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
                     if (wxTheClipboard->Open()) {
                         // wxTheClipboard->Clear(); doesn't work on Windows
                         wxTheClipboard->SetData(new wxTextDataObject(address));
-                        wxTheClipboard->Flush();
+                        // wxTheClipboard->Flush();
 
                         wxTheClipboard->Close();
                     }
