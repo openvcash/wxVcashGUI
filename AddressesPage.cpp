@@ -82,6 +82,7 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
 
     addresses->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, [this, &vcashApp](wxListEvent &event) {
         long index = event.GetIndex();
+        bool onAddress = index >= 0;
 
         enum PopupMenu {
             Copy, BlockExperts, VcashExplorer, New, QR
@@ -89,52 +90,67 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
 
         wxMenu *explorers = new wxMenu();;
         explorers->Append(BlockExperts, wxT("Block Experts"));
+        explorers->Enable(BlockExperts, onAddress);
         explorers->Append(VcashExplorer, wxT("Vcash Explorer"));
+        explorers->Enable(VcashExplorer, onAddress);
 
         wxMenu popupMenu;
         popupMenu.AppendSubMenu(explorers, wxT("&Block explorer"));
+
         popupMenu.Append(Copy, wxT("&Copy"));
+        popupMenu.Enable(Copy, onAddress);
         popupMenu.Append(New, wxT("&New"));
+
         popupMenu.Append(QR, wxT("&QR Code"));
+        popupMenu.Enable(QR, onAddress);
 
         auto select = GetPopupMenuSelectionFromUser(popupMenu);
 
         switch (select) {
             case Copy: {
-                wxString address = addresses->GetItemText(index, Address);
+                if (index >= 0) {
+                    wxString address = addresses->GetItemText(index, Address);
 
-                auto clipboard = wxTheClipboard;
+                    auto clipboard = wxTheClipboard;
 
-                if (clipboard->Open()) {
-                    clipboard->Clear();
-                    clipboard->SetData(new wxTextDataObject(address));
-                    clipboard->Flush();
+                    if (clipboard->Open()) {
+                        clipboard->Clear();
+                        clipboard->SetData(new wxTextDataObject(address));
+                        clipboard->Flush();
 
-                    clipboard->Close();
+                        clipboard->Close();
+                    }
                 }
                 break;
             }
 
             case BlockExperts: {
-                std::string address = addresses->GetItemText(index, Address).ToStdString();
-                wxLaunchDefaultBrowser(BlockExperts::addressURL(address));
+                if (index >= 0) {
+                    std::string address = addresses->GetItemText(index, Address).ToStdString();
+                    wxLaunchDefaultBrowser(BlockExperts::addressURL(address));
+                }
                 break;
             }
 
             case VcashExplorer: {
-                std::string address = addresses->GetItemText(index, Address).ToStdString();
-                wxLaunchDefaultBrowser(VcashExplorer::addressURL(address));
+                if (index >= 0) {
+                    std::string address = addresses->GetItemText(index, Address).ToStdString();
+                    wxLaunchDefaultBrowser(VcashExplorer::addressURL(address));
+                }
                 break;
             }
 
             case New: {
-                wxString account = addresses->GetItemText(index, Account);
+                wxString account = (index >= 0) ? addresses->GetItemText(index, Account) : wxT("");
                 vcashApp.controller.onConsoleCommandEntered("getnewaddress " + account.ToStdString());
                 break;
             }
 
             case QR:
-                //toDo: generate QR code
+                if (index >= 0) {
+                    //toDo: generate QR code
+                    ;
+                }
                 break;
 
             default:
