@@ -83,11 +83,13 @@ void wxStack::on_status(const std::map<std::string, std::string> &pairs) {
 };
 
 void wxStack::on_alert(const std::map<std::string, std::string> &pairs)  {
+#if 0
     std::string txt = "";
     for(auto iterator = pairs.begin(); iterator != pairs.end(); iterator++) {
         txt += iterator->first + " -> " + iterator->second + "\n";
     }
     view.messageBox(txt, "Alert", wxOK | wxICON_ERROR);
+#endif
     return;
 };
 
@@ -336,6 +338,7 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
                 }
             }
         } else if(type == "wallet.transaction") {
+            std::string value = Utils::find("value", pairs);
             std::string confirmations = Utils::find("wallet.transaction.confirmations", pairs);
             std::string confirmed = Utils::find("wallet.transaction.confirmed", pairs);
             std::string credit = Utils::find("wallet.transaction.credit", pairs);
@@ -346,20 +349,24 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
             std::string net = Utils::find("wallet.transaction.net", pairs);
             std::string time = Utils::find("wallet.transaction.time", pairs);
 
-            if(!confirmations.empty() && !hash.empty() && !net.empty() && !time.empty()) {
-                bool outcoming = !net.empty() && net[0] == '-';
-
+            if(!confirmations.empty() && !hash.empty() && !net.empty() && !time.empty() && !mainChain.empty()) {
+                bool isOutgoing = !net.empty() && net[0] == '-';
                 bool isConfirmed = confirmations != "0";
+                bool isOnChain = mainChain != "0";
+                bool isNew = value == "new";
 
-                std::string txMsg = isConfirmed ? (outcoming ? "Sent" : "Received")
-                                                : (outcoming ? "Sending(0/1)" : "Receiving(0/1)");
+                std::string txMsg = isConfirmed ? (isOutgoing ? "Sent" : "Received")
+                                                : (isOutgoing ? "Sending(0/1)" : "Receiving(0/1)");
+
+                if(isConfirmed && !isOnChain)
+                    txMsg += "(ZT)"; // is confirmed but off chain (ZeroTime)
 
                 std::time_t txTime = (std::time_t) atoll(time.c_str());
 
                 view.addTransaction(hash, txTime, txMsg, formated(net));
                 view.setColour(hash, isConfirmed ? Green : Yellow);
 
-                if (!outcoming && !isConfirmed)
+                if (!isOutgoing && isNew)
                     view.notificationBox("Amount: " + formated(net), "Incoming Vcash transaction");
                 goto end;
             }
