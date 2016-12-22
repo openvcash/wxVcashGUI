@@ -315,6 +315,9 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
                 walletLoaded = true;
                 view.setWalletStatus(stack.wallet_is_crypted() ? Locked : Unencrypted);
                 goto end;
+            } else if(value=="Rescanning wallet") {
+                view.setStatusBarMessage(Utils::find("wallet.status", pairs));
+                goto end;
             }
 
             std::string balance = Utils::find("wallet.balance", pairs);
@@ -384,3 +387,10 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
         ;
     //wxMutexGuiLeave();
 }
+
+void Controller::rescanWallet() {
+    // TODO: this doesn't work well when rescanning a wallet restored from HD
+    // It seems it only rescans main address in restored wallet
+    stack.rescan_chain();
+    view.mainFrame->Destroy();
+};

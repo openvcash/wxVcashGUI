@@ -161,6 +161,22 @@ bool WalletActions::unlock(VcashApp &vcashApp, wxWindow &parent) {
     return pair.first == wxID_OK;
 }
 
+void WalletActions::rescan(VcashApp &vcashApp, wxWindow &parent) {
+    wxString title = wxT("Rescan wallet");
+    int result = wxMessageBox(
+            wxT("Do you want to rescan your wallet?"),
+            title, wxYES_NO | wxICON_QUESTION | wxYES_DEFAULT, &parent);
+    if(result == wxYES) {
+        result = wxMessageBox(
+                wxT("The wallet will shutdown. You will have to\n"
+                    "restart the wallet in order to complete the rescan."
+                ),
+                title, wxOK | wxCANCEL | wxOK_DEFAULT | wxICON_INFORMATION, &parent);
+        if(result == wxOK)
+            vcashApp.controller.rescanWallet();
+    }
+}
+
 DumpHDSeedDlg::DumpHDSeedDlg(VcashApp &vcashApp, wxWindow &parent)
         : wxDialog(&parent, wxID_ANY, wxT("Show HD seed")) {
 
@@ -206,7 +222,7 @@ DumpHDSeedDlg::DumpHDSeedDlg(VcashApp &vcashApp, wxWindow &parent)
 
 SettingsMenu::SettingsMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
     enum PopupMenu {
-        About, ChangePass, Encrypt, Lock, Seed, Unlock
+        About, ChangePass, Encrypt, Lock, Seed, Unlock, Rescan
     };
 
     bool loaded = vcashApp.controller.isWalletLoaded();
@@ -227,6 +243,7 @@ SettingsMenu::SettingsMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
         else if(vcashApp.controller.isWalletCrypted()) {
             submenu->Append(Lock, wxT("&Lock"));
         }
+        submenu->Append(Rescan, wxT("&Rescan"));
         AppendSubMenu(submenu, wxT("Wallet"));
         AppendSeparator();
     }
@@ -254,6 +271,10 @@ SettingsMenu::SettingsMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
         }
         case Unlock: {
             WalletActions::unlock(vcashApp, parent);
+            break;
+        }
+        case Rescan: {
+            WalletActions::rescan(vcashApp, parent);
             break;
         }
         case About: {
