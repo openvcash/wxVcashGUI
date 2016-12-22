@@ -1,4 +1,4 @@
-/******************************************************************************
+******************************************************************************
  * wxVcashGUI: a GUI for Vcash, a decentralized currency 
  *             for the internet (https://vcash.info).
  *
@@ -241,7 +241,7 @@ void Controller::OnError(const std::map<std::string, std::string> &pairs) {
 void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
     //wxMutexGuiEnter();
     if (pairs.size() > 0) {
-#if 0
+#if 1
         std::cout << "STATUS " << pairs.size() << std::endl;
         std::cout << "********************************************************" << std::endl;
         for(auto iterator = pairs.begin(); iterator != pairs.end(); iterator++) {
@@ -291,6 +291,13 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
             std::string value = Utils::find("value", pairs);
             if(!value.empty()) {
                 view.setStatusBarMessage(value);
+                goto end;
+            }
+        } else if(type == "mining") {
+            std::string value = Utils::find("value", pairs);
+            if(value == "proof-of-work") {
+                std::string hashRate = Utils::find("mining.hashes_per_second", pairs);
+                view.setHash(hashRate);
                 goto end;
             }
         } else if(type == "network") {

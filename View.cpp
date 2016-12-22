@@ -76,6 +76,11 @@ void View::setMining(bool mining) {
     miningPage->setMining(mining);
 }
 
+//sets mining hash rate
+void View::setHash(const std::string &hashRate) {
+    miningPage->setHash(hashRate);
+}
+
 // sets mining state shown in view
 bool View::getMining() {
     return miningPage->getMining();

@@ -80,6 +80,7 @@ namespace wxGUI {
 
         // Mining
         void setMining(bool mining);
+        void setHash(const std::string &hashRate);
 
         bool getMining();
 

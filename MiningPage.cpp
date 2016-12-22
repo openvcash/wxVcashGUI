@@ -34,17 +34,20 @@ MiningPage::MiningPage(VcashApp &vcashApp, wxWindow &parent)
     mining = new wxButton(this, wxID_ANY, startT);
     setMining(isMining);
 
-    wxSizer *pageSizer = new wxBoxSizer(wxHORIZONTAL);
-    pageSizer->AddStretchSpacer(1);
+    hash = new wxStaticText(this, wxID_ANY, wxT(""));
+
+    wxSizer *pageSizer = new wxBoxSizer(wxVERTICAL);
+    pageSizer->AddStretchSpacer(2);
     pageSizer->Add(mining, wxSizerFlags().Center());
     pageSizer->AddStretchSpacer(1);
+    pageSizer->Add(hash, wxSizerFlags().Center());
+    pageSizer->AddStretchSpacer(2);
 
     SetSizerAndFit(pageSizer);
 
     mining->Bind(wxEVT_BUTTON, [this, &vcashApp](wxCommandEvent &) {
         toogleMining();
         vcashApp.controller.onMiningPressed(isMining);
-
     });
 }
 
@@ -62,4 +65,9 @@ void MiningPage::toogleMining() {
     setMining(!getMining());
 }
 
+void MiningPage::setHash(const std::string &hashRate) {
+    bool noHash = hashRate.empty() || hashRate[0] == '0';
+    hash->SetLabel(noHash ? wxT("") : wxString("Hash rate: "+hashRate));
+    this->Fit();
+}
 
