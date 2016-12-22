@@ -199,14 +199,12 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
                 case Copy: {
                     std::string txid = *((std::string *) listCtrl->GetItemData(index));
 
-                    auto clipboard = wxTheClipboard;
+                    if (wxTheClipboard->Open()) {
+                        // wxTheClipboard->Clear(); doesn't work on Windows
+                        wxTheClipboard->SetData(new wxTextDataObject(txid));
+                        wxTheClipboard->Flush();
 
-                    if (clipboard->Open()) {
-                        clipboard->Clear();
-                        clipboard->SetData(new wxTextDataObject(txid));
-                        clipboard->Flush();
-
-                        clipboard->Close();
+                        wxTheClipboard->Close();
                     }
                     break;
                 }

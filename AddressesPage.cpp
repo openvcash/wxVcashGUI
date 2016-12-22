@@ -111,14 +111,12 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
                 if (index >= 0) {
                     wxString address = listCtrl->GetItemText(index, Address);
 
-                    auto clipboard = wxTheClipboard;
+                    if (wxTheClipboard->Open()) {
+                        // wxTheClipboard->Clear(); doesn't work on Windows
+                        wxTheClipboard->SetData(new wxTextDataObject(address));
+                        wxTheClipboard->Flush();
 
-                    if (clipboard->Open()) {
-                        clipboard->Clear();
-                        clipboard->SetData(new wxTextDataObject(address));
-                        clipboard->Flush();
-
-                        clipboard->Close();
+                        wxTheClipboard->Close();
                     }
                 }
                 break;
