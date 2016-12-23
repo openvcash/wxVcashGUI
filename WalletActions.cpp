@@ -14,11 +14,13 @@
 
 #ifndef WX_PRECOMP
 #include <wx/button.h>
+#include <wx/graphics.h>
 #include <wx/sizer.h>
 #include <wx/textdlg.h>
 #endif
 
 #include "EntryDialog.h"
+#include <Resources.h>
 #include "VcashApp.h"
 #include "WalletActions.h"
 
@@ -189,15 +191,15 @@ DumpHDSeedDlg::DumpHDSeedDlg(VcashApp &vcashApp, wxWindow &parent)
     seedCtrl->SetValue(seed.empty() ? wxT("This is not a hierarchical deterministic wallet!") : seed);
     seedCtrl->SetEditable(false);
 
-    wxBoxSizer *hbox = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     int border = 10;
     if(!seed.empty()) {
-        hbox->Add(new wxStaticText(this, wxID_ANY, warning), 0, wxALL | wxALIGN_CENTER, border);
+        vbox->Add(new wxStaticText(this, wxID_ANY, warning), 0, wxALL | wxALIGN_CENTER, border);
         seedCtrl->SetToolTip(warning);
     }
 
-    hbox->Add(seedCtrl, 1, wxALL | wxALIGN_CENTER, border);
-    return hbox;
+    vbox->Add(seedCtrl, 1, wxALL | wxALIGN_CENTER, border);
+    return vbox;
 }) {}
 
 SettingsMenu::SettingsMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
@@ -258,8 +260,34 @@ SettingsMenu::SettingsMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
             break;
         }
         case About: {
-            wxMessageBox(wxT("A wxWidgets wallet for Vcash.\nCopyright (C) The Vcash Developers."), wxT("About wxVcash"),
-                         wxOK | wxICON_INFORMATION, &parent);
+            class AboutDlg : public ShowInfoDialog {
+            public:
+                AboutDlg(wxWindow &parent) : ShowInfoDialog(parent, wxT("About wxVcash"), [this]() {
+                    wxIcon vcash = Resources::vcashIcon;
+
+                    wxImage image;
+                    image.Create(vcash.GetWidth(), vcash.GetHeight());
+                    image.InitAlpha();
+                    unsigned char *alpha = image.GetAlpha();
+                    memset(alpha, wxIMAGE_ALPHA_TRANSPARENT, image.GetWidth()*image.GetHeight());
+
+                    wxGraphicsContext *gc = wxGraphicsContext::Create(image);
+                    gc->DrawIcon(vcash, 0, 0, vcash.GetWidth(), vcash.GetHeight());
+                    delete gc;
+                    int dimension = 64;
+                    image.Rescale(dimension, dimension);
+
+                    wxStaticBitmap *bm= new wxStaticBitmap(this, wxID_ANY, wxBitmap(image));
+                    wxStaticText *text = new wxStaticText(this, wxID_ANY, wxT("A wxWidgets wallet for Vcash.\nCopyright (C) The Vcash Developers."));
+                    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+
+                    hbox->Add(bm, 0, wxALL | wxALIGN_CENTER, 10);
+                    hbox->Add(text, 0, wxALL | wxALIGN_CENTER, 10);
+                    return hbox;
+                }) {}
+            };
+
+            new AboutDlg(parent);
             break;
         }
         default:
