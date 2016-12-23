@@ -21,10 +21,12 @@
 #include <wx/window.h>
 #endif
 
+#include "ShowInfoDialog.h"
+
 namespace wxGUI {
     class VcashApp;
 
-    class DumpHDSeedDlg : public wxDialog {
+    class DumpHDSeedDlg : public ShowInfoDialog {
     public:
         DumpHDSeedDlg(VcashApp &vcashApp, wxWindow &parent);
     };
