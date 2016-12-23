@@ -444,7 +444,7 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
              *     wallet.transaction.in_main_chain -> 1
              *
              * If wallet is restarted before on chain confirmation, different states are:
-             * 1) Tx is received:
+             * 1) Tx is received from wallet:
              *     wallet.transaction.confirmations -> -1
              *     wallet.transaction.confirmed -> 0
              *     wallet.transaction.in_main_chain -> 0
@@ -456,25 +456,31 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
              *     wallet.transaction.confirmations -> 1
              *     wallet.transaction.confirmed -> 1
              *     wallet.transaction.in_main_chain -> 1
-             */
 
-            /*************************************************************************
+             *************************************************************************
              * A normal incoming transaction goes through following states:
              * 1) Tx is received:
+             *     value -> new
              *     wallet.transaction.confirmations -> 0
              *     wallet.transaction.confirmed -> 0
-             *     wallet.transaction.in_main_chain -> 0             *
-             * 2) Tx is confirmed on chain:
+             *     wallet.transaction.in_main_chain -> 0
+             * 2) Tx is updated:
+             *     value -> updated
+             *     wallet.transaction.confirmations -> 0
+             *     wallet.transaction.confirmed -> 0
+             *     wallet.transaction.in_main_chain -> 0
+             * 3) Tx is confirmed on chain:
+             *     value -> updated
              *     wallet.transaction.confirmations -> 1
              *     wallet.transaction.confirmed -> 1
              *     wallet.transaction.in_main_chain -> 1
              *
              * If wallet is restarted before confirmation, different states are:
-             * 1) Tx is received:
+             * 1) Tx is updated from our wallet:
              *     wallet.transaction.confirmations -> -1
              *     wallet.transaction.confirmed -> 0
              *     wallet.transaction.in_main_chain -> 0
-             * 2) Tx is confirmed on chain:
+             * 2) Tx is updated from network:
              *     wallet.transaction.confirmations -> 0
              *     wallet.transaction.confirmed -> 0
              *     wallet.transaction.in_main_chain -> 0
@@ -482,11 +488,10 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
              *     wallet.transaction.confirmations -> 1
              *     wallet.transaction.confirmed -> 1
              *     wallet.transaction.in_main_chain -> 1
-             */
 
-            /*************************************************************************
+             *************************************************************************
              * A ZeroTime outgoing transaction goes through following states:
-             * 1) Tx is received:
+             * 1) Tx is created:
              *     wallet.transaction.confirmations -> 0
              *     wallet.transaction.confirmed -> 1
              *     wallet.transaction.in_main_chain -> 0
@@ -502,14 +507,42 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
              *     wallet.transaction.in_main_chain -> 1
              *     wallet.transaction.is_from_me -> 1
 
-            /*************************************************************************
+             *************************************************************************
              * A normal outgoing transaction goes through following states:
-             * 1) Tx is received:
+             * 1) Tx is created:
+             *     value -> new
              *     wallet.transaction.confirmations -> 0
              *     wallet.transaction.confirmed -> 1
              *     wallet.transaction.in_main_chain -> 0
              *     wallet.transaction.is_from_me -> 1
-             * 2) Tx is confirmed on chain:
+             * 2) Tx is updated from network:
+             *     value -> updated
+             *     wallet.transaction.confirmations -> 0
+             *     wallet.transaction.confirmed -> 1
+             *     wallet.transaction.in_main_chain -> 0
+             *     wallet.transaction.is_from_me -> 1
+             * 3) Tx is confirmed on chain:
+             *     value -> updated
+             *     wallet.transaction.confirmations -> 1
+             *     wallet.transaction.confirmed -> 1
+             *     wallet.transaction.in_main_chain -> 1
+             *     wallet.transaction.is_from_me -> 1
+             *
+             * If wallet is restarted before confirmation, different states are:
+             * 1) Tx is updated from our wallet::
+             *     value -> updated
+             *     wallet.transaction.confirmations -> -1
+             *     wallet.transaction.confirmed -> 1
+             *     wallet.transaction.in_main_chain -> 0
+             *     wallet.transaction.is_from_me -> 1
+             * 2) Tx is updated from network:
+             *     value -> updated
+             *     wallet.transaction.confirmations -> 0
+             *     wallet.transaction.confirmed -> 1
+             *     wallet.transaction.in_main_chain -> 0
+             *     wallet.transaction.is_from_me -> 1
+             * 3) Tx is confirmed on chain:
+             *     value -> updated
              *     wallet.transaction.confirmations -> 1
              *     wallet.transaction.confirmed -> 1
              *     wallet.transaction.in_main_chain -> 1
@@ -532,11 +565,13 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
 
                 if(isZeroTime)
                     txMsg += "(ZT)"; // is confirmed but off chain (ZeroTime)
+                else if(confirms > 0 && confirms < 4)
+                    txMsg += "("+std::to_string(confirms)+")";
 
                 std::time_t txTime = (std::time_t) atoll(time.c_str());
 
                 view.addTransaction(hash, txTime, txMsg, formated(net));
-                view.setColour(hash, done ? Green : Yellow);
+                view.setColour(hash, (isOutgoing && (isNew || confirms<0)) ? Red : (done ? Green : Yellow));
 
                 if (!isOutgoing && isNew)
                     view.notificationBox("Amount: " + formated(net), "Incoming Vcash transaction");
@@ -544,7 +579,7 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
             }
         }
     }
-
+    goto end;
     std::cout << "STATUS " << pairs.size() << std::endl;
     std::cout << "********************************************************" << std::endl;
     for(auto iterator = pairs.begin(); iterator != pairs.end(); iterator++) {
