@@ -21,15 +21,18 @@
 #endif
 
 #include "EntryDialog.h"
+#include "Resources.h"
 
 using namespace wxGUI;
 
 EntryDialog::EntryDialog( wxWindow &parent, const wxString &title
-                        , const std::vector<Entry> &entries
-                        , std::function<bool (const std::vector<wxString> &)> validate)
+        , const std::vector<Entry> &entries
+        , std::function<bool (const std::vector<wxString> &)> validate)
         : textCtrls()
         , validate(validate)
         , wxDialog(&parent, wxID_ANY, title) {
+
+    SetIcon(Resources::vcashIcon);
 
     int cols = 2, vgap = 5, hgap = 10;
     wxFlexGridSizer *fgs = new wxFlexGridSizer(cols, vgap, hgap);
@@ -42,8 +45,8 @@ EntryDialog::EntryDialog( wxWindow &parent, const wxString &title
         textCtrls.push_back(textCtrl);
     }
 
-    wxButton *okButton = new wxButton(this, wxID_ANY, wxT("Ok"));
-    wxButton *cancelButton = new wxButton(this, wxID_ANY, wxT("Cancel"));
+    wxButton *okButton = new wxButton(this, wxID_OK, wxT("Ok"));
+    wxButton *cancelButton = new wxButton(this, wxID_CANCEL, wxT("Cancel"));
 
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     hbox->Add(okButton);
@@ -108,10 +111,10 @@ std::vector<wxString> EntryDialog::getValues() {
 }
 
 std::pair<int, std::vector<wxString>>
-    EntryDialog::run( wxWindow &parent
-                    , const wxString &title
-                    , const std::vector<EntryDialog::Entry> &entries
-                    , std::function<bool(const std::vector<wxString> &)> validate) {
+EntryDialog::run( wxWindow &parent
+        , const wxString &title
+        , const std::vector<EntryDialog::Entry> &entries
+        , std::function<bool(const std::vector<wxString> &)> validate) {
 
     EntryDialog entryDialog(parent, title, entries, validate);
     auto result = entryDialog.ShowModal();
