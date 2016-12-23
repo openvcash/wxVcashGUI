@@ -71,6 +71,7 @@ VCASH_OBJECTS =  \
 	$(OBJS)\StatusBarImage.obj \
 	$(OBJS)\StatusBarWallet.obj \
 	$(OBJS)\OnPairsEvent.obj \
+	$(OBJS)\ShowInfoDialog.obj \
 	$(OBJS)\StatusBar.obj \
 	$(OBJS)\ToolsFrame.obj \
 	$(OBJS)\ToolsPanel.obj \
@@ -450,6 +451,8 @@ $(OBJS)\MiningPage.obj: .\MiningPage.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\MiningPage.cpp
 $(OBJS)\Resources.obj: .\Resources.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\Resources.cpp
+$(OBJS)\ShowInfoDialog.obj: .\ShowInfoDialog.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\ShowInfoDialog.cpp
 $(OBJS)\StatisticsPage.obj: .\StatisticsPage.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\StatisticsPage.cpp
 $(OBJS)\StatusBarImage.obj: .\StatusBarImage.cpp
