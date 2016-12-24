@@ -29,10 +29,9 @@ using namespace wxGUI;
 StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
         : wxStatusBar(&parent) {
 
-    unsigned long numFields = fieldsWidths.size();
     int ws[numFields];
     for (int i = 0; i < numFields; i++)
-        ws[i] = fieldsWidths.at(static_cast<Pane>(i));
+        ws[i] = fieldsWidths[i].second;
     SetFieldsCount(numFields, ws);
 
     StatusBarImage *toolsImg = new StatusBarImage(*this, Resources::tools);
@@ -94,4 +93,3 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
 void StatusBar::SetMessage(wxString msg) {
     SetStatusText(msg, Msg);
 }
-

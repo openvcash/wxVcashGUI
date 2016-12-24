@@ -9,7 +9,7 @@ include_directories(${WX_INCLUDES} .)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -D_UNICODE -D_FILE_OFFSET_BITS=64 -D__WXGTK__")
 
-set(SOURCE_FILES AccountPage.cpp AddressesPage.cpp ConsolePage.cpp Controller.cpp EntryDialog.cpp
+set(SOURCE_FILES AccountPage.cpp AddressesPage.cpp BlockExplorer.cpp ConsolePage.cpp Controller.cpp EntryDialog.cpp
         HistoryPage.cpp MainFrame.cpp MainPanel.cpp MiningPage.cpp Resources.cpp
         StatisticsPage.cpp StatusBarImage.cpp StatusBarWallet.cpp OnPairsEvent.cpp StatusBar.cpp
         ToolsFrame.cpp ToolsPanel.cpp TransferPage.cpp VcashApp.cpp View.cpp WalletActions.cpp)

@@ -32,6 +32,13 @@ StatisticsPage::StatisticsPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&
     difficulty = new wxStaticText(this, wxID_ANY, wxT("0"));
     supply = new wxStaticText(this, wxID_ANY, wxT("0"));
 
+    TCP->SetToolTip(wxT("Number of TCP connections"));
+    UDP->SetToolTip(wxT("Number of UDP connections"));
+    estimated->SetToolTip(wxT("Estimated total number of blocks"));
+    total->SetToolTip(wxT("Number of blocks for your node"));
+    difficulty->SetToolTip(wxT("Network difficulty"));
+    supply->SetToolTip(wxT("Current money supply"));
+
     int cols = 2, vgap = 0, hgap = 50;
     wxSizer *gridSizer = new wxGridSizer(cols, vgap, hgap);
 

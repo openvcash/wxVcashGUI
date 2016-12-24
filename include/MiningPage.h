@@ -18,6 +18,7 @@
 #ifndef WX_PRECOMP
 #include <wx/button.h>
 #include <wx/panel.h>
+#include <wx/stattext.h>
 #include <wx/window.h>
 
 #endif
@@ -36,8 +37,11 @@ namespace wxGUI {
 
         void toogleMining();
 
+        void setHash(const std::string &hashRate);
+
     private:
         wxButton *mining;
+        wxStaticText *hash;
         bool isMining;
     };
 }

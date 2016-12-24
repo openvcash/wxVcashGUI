@@ -102,6 +102,9 @@ namespace wxGUI {
 
         // True is wallet has been loaded
         bool isWalletLoaded();
+
+        // Called when wallet has to be rescanned
+        void rescanWallet();      
     };
 }
 

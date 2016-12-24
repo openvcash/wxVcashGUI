@@ -30,6 +30,11 @@ AccountPage::AccountPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent
     stake = new wxStaticText(this, wxID_ANY, wxT("0"));
     immature = new wxStaticText(this, wxID_ANY, wxT("0"));
 
+    balance->SetToolTip(wxT("Your confirmed balance"));
+    unconfirmed->SetToolTip(wxT("Your unconfirmed balance"));
+    stake->SetToolTip(wxT("Your staking balance"));
+    immature->SetToolTip(wxT("Your immature balance"));
+
     int cols = 2, vgap = 10, hgap = 20;
     wxSizer *gridSizer = new wxGridSizer(cols, vgap, hgap);
 

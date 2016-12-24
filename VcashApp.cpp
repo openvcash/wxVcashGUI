@@ -19,6 +19,11 @@
 #include <X11/Xlib.h>
 #endif
 
+#if defined(__WXMSW__) && (_MSC_VER >= 1900)
+FILE _iob[] = { *stdin, *stdout, *stderr };
+extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
+#endif
+
 IMPLEMENT_APP(wxGUI::VcashApp)
 
 using namespace wxGUI;
