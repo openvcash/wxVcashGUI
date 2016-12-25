@@ -427,6 +427,12 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
             std::string fromMe = Utils::find("wallet.transaction.is_from_me", pairs);
             std::string net = Utils::find("wallet.transaction.net", pairs);
             std::string time = Utils::find("wallet.transaction.time", pairs);
+            std::string type = Utils::find("wallet.transaction.type", pairs);
+            std::string coinBase = Utils::find("wallet.transaction.coin_base", pairs);
+            std::string coinStake = Utils::find("wallet.transaction.coin_stake", pairs);
+            std::string valueOut = Utils::find("wallet.transaction.value_out", pairs);
+            bool isCoinBase = coinBase == "1";
+            bool isCoinStake = coinStake == "1";
 
             /*************************************************************************
              * A ZeroTime incoming transaction goes through following states:
@@ -559,14 +565,29 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
                 bool done = (confirms>0);
 
                 bool isZeroTime = done && !isOnChain;
+                std::string txMsg;
 
-                std::string txMsg = done ? (isOutgoing ? "Sent" : "Received")
-                                         : (isOutgoing ? "Sending(0/1)" : "Receiving(0/1)");
+                if (isCoinBase) {
+                    if(isOnChain)
+                        txMsg = "Reward";
+                    else
+                        txMsg = "Reward (Unaccepted)";
 
-                if(isZeroTime)
-                    txMsg += "(ZT)"; // is confirmed but off chain (ZeroTime)
-                else if(confirms > 0 && confirms < 4)
-                    txMsg += "("+std::to_string(confirms)+")";
+                } else if(isCoinStake) {
+                    if(isOnChain)
+                        txMsg = "Interest";
+                    else
+                        txMsg = "Interest (Unaccepted)";
+
+                } else {
+                    txMsg = done ? (isOutgoing ? "Sent" : "Received")
+                                 : (isOutgoing ? "Sending (0/1)" : "Receiving (0/1)");
+
+                    if(isZeroTime)
+                        txMsg += " (ZT)"; // is confirmed but off chain (ZeroTime)
+                    else if(confirms > 0 && confirms < 4)
+                        txMsg += " ("+std::to_string(confirms)+")";
+                }
 
                 std::time_t txTime = (std::time_t) atoll(time.c_str());
 
