@@ -1,0 +1,8 @@
+vc_mswu_x64/
+CMakeFiles/
+lib/*.a
+lib/*.sh
+*.txt
+*.cmake
+Makefile
+vcash
