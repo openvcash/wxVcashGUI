@@ -31,8 +31,10 @@ COMP_PREFIX = vc120
 
 !if "$(TARGET_CPU)" == "AMD64" || "$(TARGET_CPU)" == "amd64" || "$(TARGET_CPU)" == "X64" || "$(TARGET_CPU)" == "x64" 
 LIB_ARCH_SUFFIX = 64
+LIB_OPENSSL_ARCH_SUFFIX = 64
 !else
 LIB_ARCH_SUFFIX = 32
+LIB_OPENSSL_ARCH_SUFFIX = 
 !endif
 
 WX_RELEASE_NODOT = 31
@@ -82,17 +84,12 @@ VCASH_LIBS_DEPS = \
 	"./../platforms/windows/x$(LIB_ARCH_SUFFIX)/Release/libcoin.lib" \
 	"./../platforms/windows/x$(LIB_ARCH_SUFFIX)/Release/libdatabase.lib" \
 	"./../deps/boost/stage/x$(LIB_ARCH_SUFFIX)/lib/libboost_system-$(COMP_PREFIX)-mt-s-1_57.lib" \
-	"./../deps/openssl/OpenSSL-Win$(LIB_ARCH_SUFFIX)/lib/VC/static/libeay32MT.lib" \
-	"./../deps/openssl/OpenSSL-Win$(LIB_ARCH_SUFFIX)/lib/VC/static/ssleay32MT.lib" \
+	"./../deps/openssl/lib$(LIB_OPENSSL_ARCH_SUFFIX)/libeay32MT.lib" \
+	"./../deps/openssl/lib$(LIB_OPENSSL_ARCH_SUFFIX)/ssleay32MT.lib" \
 	"./../deps/db/build_windows/x$(LIB_ARCH_SUFFIX)/Static Release/libdb61s.lib" 
 VCASH_LIBS_WX = \
 	$(__WXLIB_RICHTEXT_p) $(__WXLIB_ADV_p) $(__WXLIB_HTML_p) $(__WXLIB_CORE_p) $(__WXLIB_XML_p) $(__WXLIB_BASE_p) wxexpat$(WXDEBUGFLAG).lib $(__LIB_TIFF_p) $(__LIB_JPEG_p) $(__LIB_PNG_p) wxzlib$(WXDEBUGFLAG).lib   kernel32.lib user32.lib gdi32.lib comctl32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib shlwapi.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib version.lib wsock32.lib wininet.lib
 
-!IF $(IS_VS_2015) == 1
-VCASH_LIBS_LEGACY = legacy_stdio_definitions.lib
-!else
-VCASH_LIBS_LEGACY = 
-!endif
 	
 ### Conditionally set variables: ###
 
@@ -424,9 +421,9 @@ clean:
 	-if exist $(OBJS)\Vcash.ilk del $(OBJS)\Vcash.ilk
 	-if exist $(OBJS)\Vcash.pdb del $(OBJS)\Vcash.pdb
 
-$(OBJS)\vcash.exe: $(VCASH_OBJECTS) $(OBJS)\vcash.res
+$(OBJS)\Vcash.exe: $(VCASH_OBJECTS) $(OBJS)\vcash.res
 	link /NOLOGO /LTCG /OUT:$@  $(__DEBUGINFO_1) /pdb:"$(OBJS)\Vcash.pdb" $(__DEBUGINFO_2)  $(LINK_TARGET_CPU) /LIBPATH:$(LIBDIRNAME) /SUBSYSTEM:WINDOWS $(____CAIRO_LIBDIR_FILENAMES_p) $(LDFLAGS) @<<
-	$(VCASH_OBJECTS) $(VCASH_RESOURCES) $(VCASH_LIBS_LEGACY) $(VCASH_LIBS_DEPS) $(VCASH_LIBS_WX)
+	$(VCASH_OBJECTS) $(VCASH_RESOURCES) $(VCASH_LIBS_DEPS) $(VCASH_LIBS_WX)
 <<
 
 

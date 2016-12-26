@@ -1,7 +1,7 @@
 # wxVcashGUI
 A multiplatform GUI for Vcash, a decentralized currency for the internet (https://vcash.info/).
 
-# Building with Microsoft Visual Studio
+# Building with Microsoft Visual Studio 2015
 
 These are instructions for building a Windows 64 bits executable and this procedure
 has been tested on Windows 10 x64 with MSVC14 (Visual Studio 2015).
@@ -9,23 +9,6 @@ has been tested on Windows 10 x64 with MSVC14 (Visual Studio 2015).
 Follow instructions to build vcash with Microsoft Visual Studio: 
 
 https://github.com/openvcash/vcash/blob/master/platforms/windows/README.md
-
-For building with Visual Studio 2015, the only differences with respect to those instructions are:
-
-* Use this command to build boost:
-```
-b2 -j3 toolset=msvc-14.0 address-model=64 architecture=x86 link=static threading=multi runtime-link=static --with-system --stagedir=stage/x64
-```
-
-* Add legacy_stdio_definitions.lib to list of linked libraries for Vcash.sln.
-
-* Add this code to file C:\vcash-master\coin\test\main.cpp:
-```
-#if defined(_MSC_VER) && (_MSC_VER >= 1900)
-FILE _iob[] = { *stdin, *stdout, *stderr };
-extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
-#endif
-```
 
 Download source code of wxWidgets: https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxWidgets-3.1.0.zip
 
@@ -59,4 +42,4 @@ Enter the following command:
 nmake /f makefile.vc BUILD=release TARGET_CPU=X64 RUNTIME_LIBS=static
 ```
 
-Enjoy your GUI for vcash!
+Enjoy your GUI for Vcash!
