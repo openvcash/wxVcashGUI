@@ -30,28 +30,35 @@ StatusBarWallet::StatusBarWallet(VcashApp &vcashApp, wxWindow &parent)
         , bitmapLocked(Resources::locked)
         , bitmapUnlocked(Resources::unlocked)
         , bitmapUnknown (Resources::empty)
-        , StatusBarImage(parent, *new wxBitmap(), [this, &parent, &vcashApp](wxMouseEvent &ev) {
-              switch (walletStatus) {
-                  case Locked: {
-                      WalletActions::unlock(vcashApp, parent);
-                      break;
-                  }
+        , StatusBarImage(parent, *new wxBitmap()) {
 
-                  case Unlocked: {
-                      WalletActions::lock(vcashApp, parent);
-                      break;
-                  }
+    bindOnLeftClick([&parent, &vcashApp, this](wxMouseEvent &ev) {
+        switch (walletStatus) {
+            case Locked: {
+                WalletActions::unlock(vcashApp, parent);
+                break;
+            }
 
-                  case Unencrypted: {
-                      WalletActions::encrypt(vcashApp, parent);
-                      break;
-                  }
+            case Unlocked: {
+                WalletActions::lock(vcashApp, parent);
+                break;
+            }
 
-                  case Unknown: {
-                      break;
-                  }
-              }
-          }) {
+            case Unencrypted: {
+                WalletActions::encrypt(vcashApp, parent);
+                break;
+            }
+
+            case Unknown: {
+                break;
+            }
+        }
+    });
+
+    bindOnRightClick([&parent, &vcashApp](wxMouseEvent &ev) {
+       new SettingsMenu(vcashApp, parent);
+    });
+
     setWalletStatus(walletStatus);
 };
 

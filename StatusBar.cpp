@@ -36,7 +36,7 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
 
     StatusBarImage *toolsImg = new StatusBarImage(*this, Resources::tools);
     StatusBarImage *settingsImg = new StatusBarImage(*this, Resources::settings);
-    toolsImg->bindOnLeftClick([this, &toolsFrame, toolsImg](wxMouseEvent &event) {
+    toolsImg->bindOnClick([&toolsFrame, toolsImg](wxMouseEvent &event) {
         int x = event.GetX();
         int y = event.GetY();
 
@@ -47,7 +47,7 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
         toolsFrame.SetFocus();
     });
 
-    settingsImg->bindOnLeftClick([this, &vcashApp, &parent](wxMouseEvent &event) {
+    settingsImg->bindOnClick([&vcashApp, &parent](wxMouseEvent &event) {
         new SettingsMenu(vcashApp, parent);
     });
 
