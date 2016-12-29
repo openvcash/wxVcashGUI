@@ -10,14 +10,15 @@
  *
  ******************************************************************************/
 
+#include "coin/constants.hpp"
+
 #include "Controller.h"
 #include "EntryDialog.h"
 #include "MainFrame.h"
 #include "OnPairsEvent.h"
 #include "View.h"
 
-#include "coin/constants.hpp"
-
+#include <algorithm>
 #include <thread>
 
 using namespace wxGUI;
@@ -170,26 +171,69 @@ void Controller::onSendPressed(const std::string &pay, const std::string &to, co
     stack.send_coins(amount, to, walletArgs);
 }
 
-void Controller::walletLock() {
-    stack.wallet_lock();
-    view.setWalletStatus(Locked);
+bool Controller::isWalletCrypted() {
+    return stack.wallet_is_crypted();
 }
 
-bool Controller::onWalletWantUnlock(const std::string &password) {
-    stack.wallet_unlock(password);
+bool Controller::isWalletLocked() {
+    return stack.wallet_is_locked();
+}
+
+bool Controller::isWalletLoaded() {
+    return walletLoaded;
+}
+
+WalletStatus Controller::getWalletStatus() {
+    if(!isWalletLoaded())
+        return Unknown;
+    if(!isWalletCrypted())
+        return Unencrypted;
+    else if(isWalletLocked())
+        return Locked;
+    else
+        return Unlocked;
+}
+
+bool Controller::onWalletWantLock() {
+    stack.wallet_lock();
+    //toDo: this is a busy-wait solution which additionally does
+    // guarantee a correct result. wallet_lock runs in a different
+    // thread :(
     for(int i=0; i<50; i++) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        if(!stack.wallet_is_locked()) {
-            view.setWalletStatus(Unlocked);
+        if (stack.wallet_is_locked()) {
             return true;
         }
     }
     return false;
 }
 
-void Controller::encryptWallet(const std::string &password) {
+bool Controller::onWalletWantUnlock(const std::string &password) {
+    stack.wallet_unlock(password);
+    //toDo: this is a busy-wait solution which additionally does
+    // guarantee a correct result. wallet_unlock runs in a different
+    // thread :(
+    for(int i=0; i<50; i++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if (!stack.wallet_is_locked()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Controller::onWalletWantEncrypt(const std::string &password) {
     stack.wallet_encrypt(password);
-    view.setWalletStatus(Locked);
+    //toDo: this is a busy-wait solution which additionally does
+    // guarantee a correct result. wallet_encrypt runs in a different
+    // thread :(
+    for(int i=0; i<50; i++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if (!stack.wallet_is_crypted()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Controller::walletChangePassword(
@@ -212,7 +256,6 @@ void Controller::onConsoleCommandEntered(const std::string &command) {
     stack.rpc_send(command);
 }
 
-// Called when user wants to lock a transaction
 void Controller::onZerotimeLockTransaction(const std::string &txid) {
     stack.wallet_zerotime_lock(txid);
 }
@@ -220,18 +263,6 @@ void Controller::onZerotimeLockTransaction(const std::string &txid) {
 std::string Controller::getHDSeed() {
     std::cout << stack.wallet_hd_keychain_seed() << std::endl;
     return stack.wallet_hd_keychain_seed();
-}
-
-bool Controller::isWalletCrypted() {
-    return stack.wallet_is_crypted();
-}
-
-bool Controller::isWalletLocked() {
-    return stack.wallet_is_locked();
-}
-
-bool Controller::isWalletLoaded() {
-    return walletLoaded;
 }
 
 void Controller::OnError(const std::map<std::string, std::string> &pairs) {
@@ -342,7 +373,11 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
             }
         } else if(type == "rpc") {
             std::string result = Utils::find("value", pairs);
-            view.appendToConsole(result);
+            result.erase(std::find_if(result.rbegin(), result.rend(),
+                                 std::not1(std::ptr_fun<int, int>(std::isspace))).base(), result.end());
+            view.appendToConsole(result+"\n");
+            // rpc command may have modified the wallet status
+            view.setWalletStatus(getWalletStatus());
             goto end;
         } else if(type == "wallet") {
             std::string value = Utils::find("value", pairs);
@@ -356,26 +391,26 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
                 }
             } else if(value == "change_passphrase") {
                 std::string code = Utils::find("error.code", pairs);
-                if(code == "0" && stack.wallet_is_locked()) { // double check
-                    view.setWalletStatus(Locked);
+                if(code == "0") { // double check
+                    view.setWalletStatus(getWalletStatus());
                     goto end;
                 }
             } else if(value == "encrypt") {
                 std::string code = Utils::find("error.code", pairs);
-                if(code == "0" && stack.wallet_is_locked()) { // double check
-                    view.setWalletStatus(Locked);
+                if(code == "0") { // double check
+                    view.setWalletStatus(getWalletStatus());
                     goto end;
                 }
             } else if(value == "lock") {
                 std::string code = Utils::find("error.code", pairs);
-                if(code == "0" && stack.wallet_is_locked()) { // double check
-                    view.setWalletStatus(Locked);
+                if(code == "0") { // double check
+                    view.setWalletStatus(getWalletStatus());
                     goto end;
                 }
             } else if(value == "unlock") {
                 std::string code = Utils::find("error.code", pairs);
-                if(code == "0" && !stack.wallet_is_locked()) { // double check
-                    view.setWalletStatus(Unlocked);
+                if(code == "0") { // double check
+                    view.setWalletStatus(getWalletStatus());
                     goto end;
                 }
             } else if(value == "Loaded wallet") {

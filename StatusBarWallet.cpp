@@ -38,7 +38,7 @@ StatusBarWallet::StatusBarWallet(VcashApp &vcashApp, wxWindow &parent)
                   }
 
                   case Unlocked: {
-                      vcashApp.controller.walletLock();
+                      WalletActions::lock(vcashApp, parent);
                       break;
                   }
 

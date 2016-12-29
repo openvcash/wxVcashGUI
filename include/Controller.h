@@ -17,6 +17,8 @@
 
 #include "coin/stack.hpp"
 
+#include "StatusBarWallet.h"
+
 namespace wxGUI {
 
     class Controller;
@@ -56,13 +58,25 @@ namespace wxGUI {
         // Called after `send' is pressed in transfer dialog and input has been validated and confirmed
         void onSendPressed(const std::string &pay, const std::string &to, const bool zeroTime, const bool blendedOnly);
 
-        // Called when wallet has to be locked.
-        void walletLock();
+        // returns real current wallet status
+        WalletStatus getWalletStatus();
+
+        // True is wallet is encrypted
+        bool isWalletCrypted();
+
+        // True is wallet is locked
+        bool isWalletLocked();
+
+        // True is wallet has been loaded
+        bool isWalletLoaded();
+
+        // Called when wallet has to be locked. Should return true if successful.
+        bool onWalletWantLock();
 
         // Called when wallet has to be encrypted. Should return true if successful.
-        void encryptWallet(const std::string &password);
+        bool onWalletWantEncrypt(const std::string &password);
 
-        // Called when wallet password must be changed. Should return true if successful.
+        // Called when wallet password must be changed.
         void walletChangePassword(
                 const std::string &passphrase_old,
                 const std::string &password_new);
@@ -93,15 +107,6 @@ namespace wxGUI {
 
         // Returns the wallet HD keychain seed
         std::string getHDSeed();
-
-        // True is wallet is encrypted
-        bool isWalletCrypted();
-
-        // True is wallet is locked
-        bool isWalletLocked();
-
-        // True is wallet has been loaded
-        bool isWalletLoaded();
 
         // Called when wallet has to be rescanned
         void rescanWallet();      
