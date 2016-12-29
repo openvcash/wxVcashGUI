@@ -63,11 +63,15 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent
     SetSizerAndFit(hbox);
     Centre();
 
-    command->Bind(wxEVT_TEXT_ENTER, [this, &vcashApp](wxCommandEvent &) {
+    auto onEnter = [this, &vcashApp]() {
         std::string cmd = command->GetValue().ToStdString();
         vcashApp.controller.onConsoleCommandEntered(cmd);
-    });
+        command->Clear();
+    };
 
+    command->Bind(wxEVT_TEXT_ENTER, [this, &vcashApp, onEnter](wxCommandEvent &) {
+        onEnter();
+    });
 
     command->Bind(wxEVT_KEY_DOWN, [this](wxKeyEvent &ev) {
         switch (ev.GetKeyCode()) {
@@ -78,14 +82,6 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent
             case WXK_DOWN:
                 output->MoveDown();
                 output->ScrollIntoView(output->GetCaretPosition(),WXK_UP);
-                break;
-            case WXK_HOME:
-                output->MoveHome();
-                output->ScrollIntoView(output->GetCaretPosition(),WXK_HOME);
-                break;
-            case WXK_END:
-                output->MoveEnd();
-                output->ScrollIntoView(output->GetCaretPosition(),WXK_END);
                 break;
             case WXK_PAGEUP:
                 output->PageUp();
@@ -102,6 +98,31 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent
 
     output->Bind(wxEVT_SET_FOCUS, [this](wxFocusEvent &) {
         command->SetFocus();
+    });
+
+    auto onClick = [this, &vcashApp](wxMouseEvent &ev) {
+        wxTextCoord col , row;
+        auto result = output->HitTest(ev.GetPosition(), &col, &row);
+        if(result != wxTE_HT_BELOW  && result != wxTE_HT_BEYOND) {
+            wxString line = output->GetLineText(row);
+            command->SetValue(line);
+            command->SetInsertionPointEnd();
+        }
+        ev.Skip();
+    };
+
+    static bool wasDoubleClick = false;
+
+    output->Bind(wxEVT_LEFT_DCLICK, [this, onClick, onEnter](wxMouseEvent &ev) {
+        onClick(ev);
+        onEnter();
+        wasDoubleClick = true;
+    });
+
+    output->Bind(wxEVT_LEFT_UP, [this, onClick](wxMouseEvent &ev) {
+        if(!wasDoubleClick)
+            onClick(ev);
+        wasDoubleClick = false;
     });
 
     clear->Bind(wxEVT_BUTTON, [this](wxCommandEvent &) {

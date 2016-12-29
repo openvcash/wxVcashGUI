@@ -10,16 +10,20 @@
  *
  ******************************************************************************/
 
-#include "coin/constants.hpp"
-
 #include "Controller.h"
 #include "EntryDialog.h"
 #include "MainFrame.h"
 #include "OnPairsEvent.h"
 #include "View.h"
 
+#include "coin/constants.hpp"
+
 #include <algorithm>
 #include <thread>
+
+#ifndef _MSC_VER
+using std::isspace;
+#endif
 
 using namespace wxGUI;
 
@@ -374,7 +378,7 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
         } else if(type == "rpc") {
             std::string result = Utils::find("value", pairs);
             result.erase(std::find_if(result.rbegin(), result.rend(),
-                                 std::not1(std::ptr_fun<int, int>(std::isspace))).base(), result.end());
+                                 std::not1(std::ptr_fun<int, int>(isspace))).base(), result.end());
             view.appendToConsole(result+"\n");
             // rpc command may have modified the wallet status
             view.setWalletStatus(getWalletStatus());
