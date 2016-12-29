@@ -20,9 +20,12 @@
 #endif
 
 #include "EntryDialog.h"
-#include <Resources.h>
+#include "Resources.h"
 #include "VcashApp.h"
 #include "WalletActions.h"
+
+#include "coin/constants.hpp"
+#include "coin/utility.hpp"
 
 using namespace wxGUI;
 
@@ -278,7 +281,11 @@ SettingsMenu::SettingsMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
                     image.Rescale(dimension, dimension);
 
                     wxStaticBitmap *bm= new wxStaticBitmap(this, wxID_ANY, wxBitmap(image));
-                    wxStaticText *text = new wxStaticText(this, wxID_ANY, wxT("A wxWidgets wallet for Vcash.\nCopyright (C) The Vcash Developers."));
+                    wxStaticText *text =
+                            new wxStaticText(this, wxID_ANY,
+                                             wxT("A wxWidgets wallet for Vcash.\n"
+                                                 "Copyright (C) The Vcash Developers.\n\n"
+                                                 "Vcash version: "+coin::utility::format_version(coin::constants::version_client)));
                     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
 
                     hbox->Add(bm, 0, wxALL | wxALIGN_CENTER, 10);

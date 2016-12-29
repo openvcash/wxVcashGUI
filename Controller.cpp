@@ -16,21 +16,22 @@
 #include "OnPairsEvent.h"
 #include "View.h"
 
-#include <cstddef>
+#include "coin/constants.hpp"
+
 #include <thread>
 
 using namespace wxGUI;
 
 class Utils {
 private:
-    static const int64_t oneVcash = 1000000;
+    static const std::int64_t oneVcash = coin::constants::coin;
 public:
     static std::int64_t toJohnoshis(double amount) {
         return static_cast<std::int64_t >(amount*oneVcash);
     }
 
     static std::int64_t toJohnoshis(const std::string &amount) {
-        return toJohnoshis(std::stod (amount, nullptr));
+        return toJohnoshis(std::stod(amount, nullptr));
     }
 
     static double fromJohnoshis(std::int64_t amount) {
@@ -38,7 +39,7 @@ public:
     }
 
     static double fromJohnoshis(std::string &amount) {
-        return fromJohnoshis(std::stol (amount, nullptr));
+        return fromJohnoshis(std::stol(amount, nullptr));
     }
 
     static std::string formatted(double amount, int decimals) {
@@ -120,7 +121,7 @@ bool Controller::onInit() {
 
     view.setMining(false);
 
-    std::string zero = "0.000000";
+    std::string zero = Utils::formatted(0.0, 6);
 
     view.setBalance(zero);
     view.setUnconfirmed(zero);
@@ -178,7 +179,7 @@ bool Controller::onWalletWantUnlock(const std::string &password) {
     stack.wallet_unlock(password);
     for(int i=0; i<50; i++) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        if (!stack.wallet_is_locked()) {
+        if(!stack.wallet_is_locked()) {
             view.setWalletStatus(Unlocked);
             return true;
         }
@@ -220,7 +221,6 @@ std::string Controller::getHDSeed() {
     std::cout << stack.wallet_hd_keychain_seed() << std::endl;
     return stack.wallet_hd_keychain_seed();
 }
-
 
 bool Controller::isWalletCrypted() {
     return stack.wallet_is_crypted();

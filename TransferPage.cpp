@@ -24,14 +24,16 @@
 #include "TransferPage.h"
 #include "VcashApp.h"
 
+#include "coin/constants.hpp"
+
 using namespace wxGUI;
 
 TransferPage::TransferPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent) {
-    int vcashSupply = 30700000;
+    double vcashSupply = coin::constants::max_money_supply / coin::constants::coin;
     int decimals = 6;
     wxFloatingPointValidator<double>
             payValidator(decimals, nullptr, wxNUM_VAL_ZERO_AS_BLANK | wxNUM_VAL_NO_TRAILING_ZEROES);
-    payValidator.SetRange(0,vcashSupply);
+    payValidator.SetRange(0, vcashSupply);
 
     wxTextValidator toValidator(wxFILTER_ALPHANUMERIC);
 
