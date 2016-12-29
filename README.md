@@ -95,7 +95,7 @@ libqrencode (https://github.com/fukuchi/libqrencode) library must be built previ
 
 On Linux, cd to that directory:
 ```
-cd ~/vcash-master/wxVcashGUI/deps
+cd ~/vcash/src/wxVcashGUI-master/deps
 ```
 
 Clone libqrencode library:
