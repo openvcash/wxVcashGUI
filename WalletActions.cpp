@@ -19,13 +19,13 @@
 #include <wx/textdlg.h>
 #endif
 
-#include "coin/constants.hpp"
-#include "coin/utility.hpp"
-
 #include "EntryDialog.h"
 #include "Resources.h"
 #include "VcashApp.h"
 #include "WalletActions.h"
+
+#include "coin/constants.hpp"
+#include "coin/utility.hpp"
 
 using namespace wxGUI;
 
