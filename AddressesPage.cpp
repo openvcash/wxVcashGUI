@@ -20,6 +20,7 @@
 
 #include "AddressesPage.h"
 #include "BlockExplorer.h"
+#include "QRDialog.h"
 #include "ToolsFrame.h"
 #include "VcashApp.h"
 
@@ -115,7 +116,6 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
                         // wxTheClipboard->Clear(); doesn't work on Windows
                         wxTheClipboard->SetData(new wxTextDataObject(address));
                         // wxTheClipboard->Flush();
-
                         wxTheClipboard->Close();
                     }
                 }
@@ -146,8 +146,8 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
 
             case QR:
                 if (index >= 0) {
-                    //toDo: generate QR code
-                    ;
+                    wxString address = listCtrl->GetItemText(index, Address);
+                    new QRDialog(*this, wxT("QR Address"), address);
                 }
                 break;
 

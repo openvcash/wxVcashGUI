@@ -21,6 +21,7 @@
 
 #include "BlockExplorer.h"
 #include "HistoryPage.h"
+#include "QRDialog.h"
 #include "Resources.h"
 #include "VcashApp.h"
 
@@ -166,7 +167,7 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
 
         if (index >= 0) {
             enum PopupMenu {
-                BlockExperts, VcashExplorer, Copy, Info, Lock
+                BlockExperts, VcashExplorer, Copy, Info, Lock, QR
             };
 
             wxMenu *explorers = new wxMenu();;
@@ -178,6 +179,7 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
             popupMenu.Append(Copy, wxT("&Copy"));
             popupMenu.Append(Info, wxT("&Information"));
             popupMenu.Append(Lock, wxT("&Lock"));
+            popupMenu.Append(QR, wxT("&QR"));
 
             auto select = GetPopupMenuSelectionFromUser(popupMenu);
             listCtrl->SetItemState(index, 0,
@@ -203,7 +205,6 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
                         // wxTheClipboard->Clear(); doesn't work on Windows
                         wxTheClipboard->SetData(new wxTextDataObject(txid));
                         // wxTheClipboard->Flush();
-
                         wxTheClipboard->Close();
                     }
                     break;
@@ -219,6 +220,12 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
                 case Lock: {
                     std::string txid = *((std::string *) listCtrl->GetItemData(index));
                     vcashApp.controller.onZerotimeLockTransaction(txid);
+                    break;
+                }
+
+                case QR: {
+                    std::string txid = *((std::string *) listCtrl->GetItemData(index));
+                    new QRDialog(*this, wxT("QR transaction"), wxString(txid));
                     break;
                 }
 

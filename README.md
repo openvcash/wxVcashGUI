@@ -1,6 +1,29 @@
 # wxVcashGUI
 A multiplatform GUI for Vcash, a decentralized currency for the internet (https://vcash.info/).
 
+# Dependencies
+libqrencode (https://github.com/fukuchi/libqrencode) library must be built previously in directory deps.
+
+On Linux, cd to that directory:
+```
+cd ~/vcash-master/wxVcashGUI/deps
+```
+
+Clone libqrencode library:
+```
+git clone https://github.com/fukuchi/libqrencode
+```
+
+Build the library:
+```
+cd libqrencode
+cmake CMakeLists.txt
+make
+```
+
+On Windows, I was also able to build this library using cmake.
+
+
 # Building with Microsoft Visual Studio 2015
 
 These are instructions for building a Windows 64 bits executable and this procedure

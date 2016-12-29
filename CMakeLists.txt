@@ -3,14 +3,14 @@ cmake_minimum_required(VERSION 3.0)
 
 project(vcash)
 
-set(WX_INCLUDES ./include /usr/local/include/wx-3.0 /usr/local/lib/wx/include/gtk3-unicode-static-3.0)
+set(WX_INCLUDES ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/deps/libqrencode /usr/local/include/wx-3.0 /usr/local/lib/wx/include/gtk3-unicode-static-3.0)
 
 include_directories(${WX_INCLUDES} .)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -D_UNICODE -D_FILE_OFFSET_BITS=64 -D__WXGTK__")
 
 set(SOURCE_FILES AccountPage.cpp AddressesPage.cpp BlockExplorer.cpp ConsolePage.cpp Controller.cpp EntryDialog.cpp
-        HistoryPage.cpp MainFrame.cpp MainPanel.cpp MiningPage.cpp Resources.cpp ShowInfoDialog.cpp
+        HistoryPage.cpp MainFrame.cpp MainPanel.cpp MiningPage.cpp QRDialog.cpp Resources.cpp ShowInfoDialog.cpp
         StatisticsPage.cpp StatusBarImage.cpp StatusBarWallet.cpp OnPairsEvent.cpp StatusBar.cpp
         ToolsFrame.cpp ToolsPanel.cpp TransferPage.cpp VcashApp.cpp View.cpp WalletActions.cpp)
 
@@ -28,6 +28,8 @@ TARGET_LINK_LIBRARIES(vcash
         ${vcashLib}/libdb.a
         ${vcashLib}/libdb_cxx.a
         ${vcashLib}/libdatabase.a
+
+        ${CMAKE_SOURCE_DIR}/deps/libqrencode/libqrencode.a
 
         wx_gtk3u_richtext-3.0
         wx_gtk3u_adv-3.0
