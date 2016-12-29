@@ -95,6 +95,9 @@ namespace wxGUI {
         // Called when user wants to lock a transaction
         void onZerotimeLockTransaction(const std::string &txid);
 
+        // checks if a txid can be locked
+        bool canZerotimeLock(const std::string &txid);
+
         // This method will be executed by GUI thread when we get an on_status
         // notification from Vcash stack. This is needed as all GUI operations
         // have to be performed by GUI thread,

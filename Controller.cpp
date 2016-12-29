@@ -17,6 +17,8 @@
 #include "View.h"
 
 #include "coin/constants.hpp"
+#include "coin/transaction_pool.hpp"
+#include "coin/zerotime.hpp"
 
 #include <algorithm>
 #include <thread>
@@ -262,6 +264,12 @@ void Controller::onConsoleCommandEntered(const std::string &command) {
 
 void Controller::onZerotimeLockTransaction(const std::string &txid) {
     stack.wallet_zerotime_lock(txid);
+}
+
+bool Controller::canZerotimeLock(const std::string &txid) {
+    return coin::globals::instance().is_zerotime_enabled()
+            && coin::transaction_pool::instance().exists(txid)
+            && (coin::zerotime::instance().locks().count(txid) == 0);
 }
 
 std::string Controller::getHDSeed() {

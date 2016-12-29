@@ -165,7 +165,10 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
     listCtrl->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, [this, &vcashApp](wxListEvent &event) {
         long index = event.GetIndex();
 
+        std::cout << index << std::endl;
         if (index >= 0) {
+            std::string txid = *((std::string *) listCtrl->GetItemData(index));
+
             enum PopupMenu {
                 BlockExperts, VcashExplorer, Copy, Info, Lock, QR
             };
@@ -181,26 +184,21 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
             popupMenu.Append(Lock, wxT("&Lock"));
             popupMenu.Append(QR, wxT("&QR"));
 
-            auto select = GetPopupMenuSelectionFromUser(popupMenu);
-            listCtrl->SetItemState(index, 0,
-                                   wxLIST_STATE_FOCUSED | wxLIST_STATE_SELECTED);
+            popupMenu.Enable(Lock, vcashApp.controller.canZerotimeLock(txid));
 
+            auto select = GetPopupMenuSelectionFromUser(popupMenu);
             switch (select) {
                 case BlockExperts: {
-                    std::string txid = *((std::string *) listCtrl->GetItemData(index));
                     wxLaunchDefaultBrowser(BlockExperts::transactionURL(txid));
                     break;
                 }
 
                 case VcashExplorer: {
-                    std::string txid = *((std::string *) listCtrl->GetItemData(index));
                     wxLaunchDefaultBrowser(VcashExplorer::transactionURL(txid));
                     break;
                 }
 
                 case Copy: {
-                    std::string txid = *((std::string *) listCtrl->GetItemData(index));
-
                     if (wxTheClipboard->Open()) {
                         // wxTheClipboard->Clear(); doesn't work on Windows
                         wxTheClipboard->SetData(new wxTextDataObject(txid));
@@ -211,20 +209,17 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
                 }
 
                 case Info: {
-                    std::string txid = *((std::string *) listCtrl->GetItemData(index));
                     std::string cmd = "gettransaction " + txid;
                     vcashApp.controller.onConsoleCommandEntered(cmd);
                     break;
                 }
 
                 case Lock: {
-                    std::string txid = *((std::string *) listCtrl->GetItemData(index));
                     vcashApp.controller.onZerotimeLockTransaction(txid);
                     break;
                 }
 
                 case QR: {
-                    std::string txid = *((std::string *) listCtrl->GetItemData(index));
                     new QRDialog(*this, wxT("QR transaction"), wxString(txid));
                     break;
                 }
@@ -234,6 +229,7 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
                 };
             }
         }
+        event.Skip();
     });
 }
 

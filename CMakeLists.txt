@@ -22,6 +22,7 @@ include_directories(
         ${VCASH_SRC_PATH}/coin/include
         ${VCASH_SRC_PATH}/deps/boost
         ${VCASH_SRC_PATH}/deps/openssl/include
+        ${VCASH_SRC_PATH}/deps/db/include
 
         ${WX_INCLUDES})
 
