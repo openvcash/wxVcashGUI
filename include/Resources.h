@@ -18,6 +18,7 @@
 #ifndef WX_PRECOMP
 #include <wx/bitmap.h>
 #include <wx/icon.h>
+#include <wx/image.h>
 #endif
 
 namespace wxGUI {
@@ -30,6 +31,8 @@ namespace wxGUI {
         static wxBitmap empty, locked, settings, tools, unlocked;
 
         static wxIcon vcashIcon;
+
+        static wxImage vcashImage64;
     };
 }
 

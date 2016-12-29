@@ -21,10 +21,10 @@
 #include <wx/valtext.h>
 #endif
 
+#include "coin/constants.hpp"
+
 #include "TransferPage.h"
 #include "VcashApp.h"
-
-#include "coin/constants.hpp"
 
 using namespace wxGUI;
 
@@ -70,7 +70,7 @@ TransferPage::TransferPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&pare
 
     wxSizer *sizerH = new wxBoxSizer(wxHORIZONTAL);
     sizerH->Add(sizerV, 1, wxALL | wxEXPAND, 0);
-    sizerH->Add(send, wxSizerFlags().Right());
+    sizerH->Add(send, wxSizerFlags());
 
     fgs->Add(0, 20);
     fgs->Add(0, 0);

@@ -14,7 +14,6 @@
 
 #ifndef WX_PRECOMP
 #include <wx/button.h>
-#include <wx/graphics.h>
 #include <wx/sizer.h>
 #include <wx/textdlg.h>
 #endif
@@ -327,21 +326,7 @@ SettingsMenu::SettingsMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
             class AboutDlg : public ShowInfoDialog {
             public:
                 AboutDlg(wxWindow &parent) : ShowInfoDialog(parent, wxT("About wxVcash"), [this]() {
-                    wxIcon vcash = Resources::vcashIcon;
-
-                    wxImage image;
-                    image.Create(vcash.GetWidth(), vcash.GetHeight());
-                    image.InitAlpha();
-                    unsigned char *alpha = image.GetAlpha();
-                    memset(alpha, wxIMAGE_ALPHA_TRANSPARENT, image.GetWidth()*image.GetHeight());
-
-                    wxGraphicsContext *gc = wxGraphicsContext::Create(image);
-                    gc->DrawIcon(vcash, 0, 0, vcash.GetWidth(), vcash.GetHeight());
-                    delete gc;
-                    int dimension = 64;
-                    image.Rescale(dimension, dimension);
-
-                    wxStaticBitmap *bm= new wxStaticBitmap(this, wxID_ANY, wxBitmap(image));
+                    wxStaticBitmap *bm= new wxStaticBitmap(this, wxID_ANY, wxBitmap(Resources::vcashImage64));
                     wxStaticText *text =
                             new wxStaticText(this, wxID_ANY,
                                              wxT("A wxWidgets wallet for Vcash.\n"

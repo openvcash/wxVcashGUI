@@ -70,10 +70,12 @@ MainFrame::MainFrame(VcashApp &vcashApp)
     });
 
     auto moveToolsFrame = [this, &vcashApp, toolsFrame]() {
-        wxRect rect;
-        vcashApp.view.statusBar->GetFieldRect(StatusBar::Tools, rect);
-        toolsFrame->Move(vcashApp.view.statusBar->ClientToScreen(
-                wxPoint(rect.x+rect.width/2, rect.y+rect.height/2)));
+        if(this->IsShown()) {
+            wxRect rect;
+            vcashApp.view.statusBar->GetFieldRect(StatusBar::Tools, rect);
+            toolsFrame->Move(vcashApp.view.statusBar->ClientToScreen(
+                    wxPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)));
+        }
     };
 
     Bind(wxEVT_MOVE, [moveToolsFrame](wxMoveEvent &event) {
