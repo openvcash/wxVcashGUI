@@ -85,7 +85,14 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
                     isPrefix++;
                 }
             }
+#if defined(__WXMSW__)
             execute = isPrefix <= 1;
+#else
+            if((isPrefix==1) && (rpcCommands.find(cmd) != rpcCommands.end()))
+                execute = true;
+            else
+                execute = isPrefix <= 0;
+#endif
         }
 
         if(execute) {
@@ -120,7 +127,7 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
                 if(from!=to)
                     command->Remove(from, to);
 #if defined(__WXMSW__)
-            else
+                else
                     command->Clear();
 #endif
                 ev.Skip(true);
