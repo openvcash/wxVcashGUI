@@ -71,13 +71,60 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
     SetSizerAndFit(hbox);
     Centre();
 
-    command->Bind(wxEVT_KEY_DOWN, [this](wxKeyEvent &ev) {
+    auto onEnter = [this, &vcashApp](wxEvent &ev) {
+        std::string cmd = command->GetValue().ToStdString();
+
+        bool execute = consecutiveEnters > 1;
+
+        if(!execute) {
+            // check if cmd is a prefix of any command
+            int isPrefix = 0;
+            for(auto rpc : rpcCommands) {
+                auto res = std::mismatch(cmd.begin(), cmd.end(), rpc.begin());
+                if(res.first == cmd.end()) {
+                    isPrefix++;
+                }
+            }
+            execute = isPrefix <= 1;
+        }
+
+        if(execute) {
+            // execute rpc command
+            vcashApp.controller.onConsoleCommandEntered(cmd);
+            command->Clear();
+            consecutiveEnters = 0;
+        } else {
+            // select word from list
+#if defined(__WXMSW__)
+            //MSVC
+            command->SelectNone();
+            command->SetInsertionPointEnd();
+#endif
+            ev.Skip(true);
+        }
+    };
+
+    command->Bind(wxEVT_KEY_DOWN, [this, onEnter](wxKeyEvent &ev) {
         if(ev.GetKeyCode() == WXK_RETURN)
             consecutiveEnters++;
         else
             consecutiveEnters = 0;
-
         switch (ev.GetKeyCode()) {
+            case WXK_RETURN:
+                onEnter(ev);
+                break;
+            case WXK_ESCAPE:
+                consecutiveEnters++;
+                long from, to;
+                command->GetSelection(&from, &to);
+                if(from!=to)
+                    command->Remove(from, to);
+#if defined(__WXMSW__)
+            else
+                    command->Clear();
+#endif
+                ev.Skip(true);
+                break;
             case WXK_PAGEUP:
                 output->PageUp();
                 output->ScrollIntoView(output->GetCaretPosition(),WXK_PAGEUP);
@@ -87,41 +134,10 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
                 output->ScrollIntoView(output->GetCaretPosition(),WXK_PAGEUP);
                 break;
             default:
-                ev.Skip();
+                ev.Skip(true);
         }
     });
 
-    auto onEnter = [this, &vcashApp](wxEvent &ev) {
-        std::string cmd = command->GetValue().ToStdString();
-
-        bool execute = consecutiveEnters > 1;
-
-        if(!execute) {
-            // check if cmd is a prefix of any command
-            bool isPrefix = false;
-            for(auto rpc : rpcCommands) {
-                auto res = std::mismatch(cmd.begin(), cmd.end(), rpc.begin());
-                if (res.first == cmd.end()) {
-                    isPrefix = true;
-                    break;
-                }
-            }
-            execute = !isPrefix;
-        }
-
-        if(execute) {
-            // execute rpc command
-            vcashApp.controller.onConsoleCommandEntered(cmd);
-            command->Clear();
-        } else {
-            // select word from list
-            ev.Skip(true);
-        }
-    };
-
-    command->Bind(wxEVT_TEXT_ENTER, [this, &vcashApp, onEnter](wxCommandEvent &ev) {
-        onEnter(ev);
-    });
 
     output->Bind(wxEVT_SET_FOCUS, [this](wxFocusEvent &) {
         command->SetFocus();
