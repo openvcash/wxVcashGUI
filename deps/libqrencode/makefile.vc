@@ -1,0 +1,20 @@
+ 
+LIBQRENCODE = libqrencode.lib
+
+all: $(LIBQRENCODE)
+
+clean:
+  del *.obj
+  del $(LIBQRENCODE)
+
+OBJECTS =  \
+  bitstream.obj mask.obj mmask.obj mqrspec.obj qrencode.obj qrinput.obj qrspec.obj rsecc.obj split.obj
+
+.c.obj:
+  cl /nologo /MT /DNDEBUG /D_UNICODE /DSTATIC_IN_RELEASE=static /DMAJOR_VERSION=4 /DMINOR_VERSION=0 /DMICRO_VERSION=0 /DVERSION=\"4.0.0\" /c \
+   $*.c
+
+$(LIBQRENCODE): $(OBJECTS)
+  lib /NOLOGO /MACHINE:X64 /OUT:$(LIBQRENCODE) @<<
+  $(OBJECTS)
+<<

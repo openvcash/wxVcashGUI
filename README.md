@@ -93,7 +93,9 @@ Download wxVcashGUI from https://github.com/openvcash/wxVcashGUI/archive/master.
 
 libqrencode (https://github.com/fukuchi/libqrencode) library must be built previously in directory deps.
 
-On Linux, cd to that directory:
+## On Linux
+
+cd to that directory:
 ```
 cd ~/vcash/src/wxVcashGUI-master/deps
 ```
@@ -110,13 +112,27 @@ cmake CMakeLists.txt
 make
 ```
 
-On Windows, I was also able to build this library using cmake.
+## On Windows
 
+Download the library from https://github.com/fukuchi/libqrencode/archive/master.zip 
+
+Uncompress this file to folder C:\vcash-master\wxVcashGUI-master\deps
+and rename folder libqrencode-master to libqrencode.
+
+cd to libqrencode directory:
+```
+cd C:\vcash-master\wxVcashGUI-master\deps\libqrencode
+```
+
+Build the library:
+```
+nmake /f makefile.vc
+```
 
 
 # Building wxVcashGUI
 
-# On Linux
+## On Linux
 
 cd to wxVcashGUI directory:
 ```
@@ -138,7 +154,7 @@ cd C:\vcash-master\wxVcashGUI-master
 
 Enter the following command:
 ```
-nmake /f makefile.vc BUILD=release TARGET_CPU=X64 RUNTIME_LIBS=static
+nmake /f makefile.vc BUILD=release TARGET_CPU=X64 RUNTIME_LIBS=static USE_THREADS=1
 ```
 
 Enjoy your GUI for Vcash!
