@@ -12,8 +12,10 @@
 
 #include "Controller.h"
 #include "EntryDialog.h"
+#include "HistoryPage.h"
 #include "MainFrame.h"
 #include "OnPairsEvent.h"
+#include "StatusBarWallet.h"
 #include "View.h"
 
 #include "coin/constants.hpp"
@@ -190,13 +192,13 @@ bool Controller::isWalletLoaded() {
 
 WalletStatus Controller::getWalletStatus() {
     if(!isWalletLoaded())
-        return Unknown;
+        return WalletStatus::Unknown;
     if(!isWalletCrypted())
-        return Unencrypted;
+        return WalletStatus::Unencrypted;
     else if(isWalletLocked())
-        return Locked;
+        return WalletStatus::Locked;
     else
-        return Unlocked;
+        return WalletStatus::Unlocked;
 }
 
 bool Controller::onWalletWantLock() {
@@ -440,7 +442,7 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
             } else if(value == "Loaded wallet") {
                 // Now that wallet has been loaded, set locked/unlocked status in GUI
                 walletLoaded = true;
-                view.setWalletStatus(stack.wallet_is_crypted() ? Locked : Unencrypted);
+                view.setWalletStatus(stack.wallet_is_crypted() ? WalletStatus::Locked : WalletStatus::Unencrypted);
                 goto end;
             } else if(value == "Loading wallet") {
                 std::string status = Utils::find("wallet.status", pairs);
@@ -651,7 +653,7 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
                 std::time_t txTime = (std::time_t) atoll(time.c_str());
 
                 view.addTransaction(hash, txTime, txMsg, formated(net));
-                view.setColour(hash, (isOutgoing && (isNew || confirms<0)) ? Red : (done ? Green : Yellow));
+                view.setColour(hash, (isOutgoing && (isNew || confirms<0)) ? BulletColor::Red : (done ? BulletColor::Green : BulletColor::Yellow));
 
                 if (!isOutgoing && isNew)
                     view.notificationBox("Amount: " + formated(net), "Incoming Vcash transaction");

@@ -26,7 +26,7 @@
 using namespace wxGUI;
 
 StatusBarWallet::StatusBarWallet(VcashApp &vcashApp, wxWindow &parent)
-        : walletStatus(Unknown)
+        : walletStatus(WalletStatus::Unknown)
         , bitmapLocked(Resources::locked)
         , bitmapUnlocked(Resources::unlocked)
         , bitmapUnknown (Resources::empty)
@@ -34,22 +34,22 @@ StatusBarWallet::StatusBarWallet(VcashApp &vcashApp, wxWindow &parent)
 
     bindOnLeftClick([&parent, &vcashApp, this](wxMouseEvent &ev) {
         switch (walletStatus) {
-            case Locked: {
+            case WalletStatus::Locked: {
                 WalletActions::unlock(vcashApp, parent);
                 break;
             }
 
-            case Unlocked: {
+            case WalletStatus::Unlocked: {
                 WalletActions::lock(vcashApp, parent);
                 break;
             }
 
-            case Unencrypted: {
+            case WalletStatus::Unencrypted: {
                 WalletActions::encrypt(vcashApp, parent);
                 break;
             }
 
-            case Unknown: {
+            case WalletStatus::Unknown: {
                 break;
             }
         }
@@ -69,14 +69,14 @@ WalletStatus StatusBarWallet::getWalletStatus() {
 void StatusBarWallet::setWalletStatus(WalletStatus st) {
     walletStatus = st;
     switch (walletStatus) {
-        case Locked:
+        case WalletStatus::Locked:
             SetBitmap(bitmapLocked);
             break;
-        case Unlocked:
-        case Unencrypted:
+        case WalletStatus::Unlocked:
+        case WalletStatus::Unencrypted:
             SetBitmap(bitmapUnlocked);
             break;
-        case Unknown:
+        case WalletStatus::Unknown:
             SetBitmap(bitmapUnknown);
             break;
     }

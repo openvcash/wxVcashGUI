@@ -73,8 +73,8 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
 
     listCtrl = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(445, wxDefaultSize.GetHeight()),
                                wxLC_REPORT | wxLC_SINGLE_SEL | wxBORDER_NONE);
-    listCtrl->InsertColumn(Account, "Account", wxLIST_FORMAT_LEFT, 100);
-    listCtrl->InsertColumn(Address, "Address", wxLIST_FORMAT_LEFT, 340);
+    listCtrl->InsertColumn(Column::Account, "Account", wxLIST_FORMAT_LEFT, 100);
+    listCtrl->InsertColumn(Column::Address, "Address", wxLIST_FORMAT_LEFT, 340);
 
     wxSizer *pageSizer = new wxBoxSizer(wxVERTICAL);
     pageSizer->Add(listCtrl, 1, wxALL | wxEXPAND, 5);

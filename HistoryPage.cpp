@@ -260,7 +260,7 @@ void HistoryPage::addTransaction(const std::string &txid, const std::time_t &tim
         char formattedTime[256];
         std::strftime(formattedTime, sizeof(formattedTime), "%m/%d/%y %H:%M:%S", std::localtime(&time));
 
-        listCtrl->SetItem(index, Icon, wxString(""), Yellow);
+        listCtrl->SetItem(index, Icon, wxString(""), static_cast<int>(BulletColor::Yellow));
         listCtrl->SetItem(index, Date, wxString(formattedTime));
         listCtrl->SetItem(index, Status, wxString(status));
         listCtrl->SetItem(index, Amount, wxString(amount));
@@ -279,7 +279,8 @@ void HistoryPage::setColour(const std::string &txid, BulletColor color) {
         if (index >= 0) {
             bool isOut = listCtrl->GetItemText(index, Amount)[0] == '-';
             int numImages = listCtrl->GetImageList(wxIMAGE_LIST_SMALL)->GetImageCount();
-            listCtrl->SetItem(index, Icon, wxString(""), isOut ? color : numImages / 2 + color);
+            int numColor = static_cast<int>(color);
+            listCtrl->SetItem(index, Icon, wxString(""), isOut ? numColor : numImages / 2 + numColor);
         }
     }
 }
@@ -288,7 +289,7 @@ void HistoryPage::setStatus(const std::string &txid, const std::string &status) 
     auto it = transactions.find(txid);
     if (it != transactions.end()) {
         long index = listCtrl->FindItem(-1,
-                                        (wxUIntPtr) &(it->first));  // find index of item in listCtrl with this txid
+                       (wxUIntPtr) &(it->first));  // find index of item in listCtrl with this txid
         if (index >= 0) {
             listCtrl->SetItem(index, Status, wxString(status));
         }

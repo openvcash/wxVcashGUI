@@ -23,21 +23,23 @@
 #include <wx/statusbr.h>
 #endif
 
-#include "HistoryPage.h"
-#include "StatisticsPage.h"
-#include "StatusBarWallet.h"
+#include <ctime>
 
 namespace wxGUI {
 
     class AddressesPage;
     class AccountPage;
+    enum class BulletColor;
     class ConsolePage;
+    class HistoryPage;
     class MainFrame;
     class MiningPage;
+    class StatisticsPage;
     class StatusBarWallet;
     class StatusBar;
     class ToolsFrame;
     class ToolsPanel;
+    enum class WalletStatus;
 
     class View {
     public:

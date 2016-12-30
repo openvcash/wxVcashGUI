@@ -17,12 +17,11 @@
 
 #include "coin/stack.hpp"
 
-#include "StatusBarWallet.h"
-
 namespace wxGUI {
 
     class Controller;
     class View;
+    enum class WalletStatus;
 
     class wxStack : public coin::stack {
     private:
