@@ -22,7 +22,10 @@
 
 using namespace wxGUI;
 
-ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent) {
+ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
+        : consecutiveEnters(0)
+        , wasDoubleClick(false)
+        , wxPanel(&parent) {
     vcashApp.view.consolePage = this;
 
     int cols = 1, vgap = 10, hgap = 15;
@@ -48,6 +51,11 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent
     command->SetToolTip(wxT("RPC command to invoke"));
     clear->SetToolTip(wxT("Clear all previous output"));
 
+    wxArrayString wxRpcCommands;
+    for(auto rpc : rpcCommands)
+        wxRpcCommands.Add(wxString(rpc));
+    command->AutoComplete(wxRpcCommands);
+
     wxBoxSizer *row = new wxBoxSizer(wxHORIZONTAL);
     row->Add(command, 1, wxALL | wxEXPAND);
     row->Add(clear);
@@ -63,26 +71,13 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent
     SetSizerAndFit(hbox);
     Centre();
 
-    auto onEnter = [this, &vcashApp]() {
-        std::string cmd = command->GetValue().ToStdString();
-        vcashApp.controller.onConsoleCommandEntered(cmd);
-        command->Clear();
-    };
-
-    command->Bind(wxEVT_TEXT_ENTER, [this, &vcashApp, onEnter](wxCommandEvent &) {
-        onEnter();
-    });
-
     command->Bind(wxEVT_KEY_DOWN, [this](wxKeyEvent &ev) {
+        if(ev.GetKeyCode() == WXK_RETURN)
+            consecutiveEnters++;
+        else
+            consecutiveEnters = 0;
+
         switch (ev.GetKeyCode()) {
-            case WXK_UP:
-                output->MoveUp();
-                output->ScrollIntoView(output->GetCaretPosition(),WXK_UP);
-                break;
-            case WXK_DOWN:
-                output->MoveDown();
-                output->ScrollIntoView(output->GetCaretPosition(),WXK_UP);
-                break;
             case WXK_PAGEUP:
                 output->PageUp();
                 output->ScrollIntoView(output->GetCaretPosition(),WXK_PAGEUP);
@@ -94,6 +89,38 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent
             default:
                 ev.Skip();
         }
+    });
+
+    auto onEnter = [this, &vcashApp](wxEvent &ev) {
+        std::string cmd = command->GetValue().ToStdString();
+
+        bool execute = consecutiveEnters > 1;
+
+        if(!execute) {
+            // check if cmd is a prefix of any command
+            bool isPrefix = false;
+            for(auto rpc : rpcCommands) {
+                auto res = std::mismatch(cmd.begin(), cmd.end(), rpc.begin());
+                if (res.first == cmd.end()) {
+                    isPrefix = true;
+                    break;
+                }
+            }
+            execute = !isPrefix;
+        }
+
+        if(execute) {
+            // execute rpc command
+            vcashApp.controller.onConsoleCommandEntered(cmd);
+            command->Clear();
+        } else {
+            // select word from list
+            ev.Skip(true);
+        }
+    };
+
+    command->Bind(wxEVT_TEXT_ENTER, [this, &vcashApp, onEnter](wxCommandEvent &ev) {
+        onEnter(ev);
     });
 
     output->Bind(wxEVT_SET_FOCUS, [this](wxFocusEvent &) {
@@ -111,11 +138,9 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent
         ev.Skip();
     };
 
-    static bool wasDoubleClick = false;
-
     output->Bind(wxEVT_LEFT_DCLICK, [this, onClick, onEnter](wxMouseEvent &ev) {
         onClick(ev);
-        onEnter();
+        onEnter(ev);
         wasDoubleClick = true;
     });
 
@@ -146,3 +171,23 @@ void ConsolePage::appendToConsole(const std::string &text, bool bold) {
 
     output->ShowPosition(output->GetLastPosition());
 }
+
+const std::set<std::string> ConsolePage::rpcCommands =
+    { "backupwallet"
+    , "chainblender", "checkwallet"
+    , "databaseenv", "databasefind", "databasestore"
+    , "dumpwalletseed", "dumpprivkey", "dumpwallet"
+    , "encryptwallet"
+    , "getaccount", "getaccountaddress", "getbalance", "getblock", "getblockcount"
+    , "getblockhash", "getblocktemplate", "getdifficulty", "getincentiveinfo"
+    , "getinfo"
+    , "incentive", "importprivkey"
+    , "listsinceblock", "listreceivedbyaccount", "listreceivedbyaddress", "listtransactions"
+    , "getmininginfo", "getnetworkhashps", "getnetworkinfo"
+    , "getnewaddress", "getpeerinfo", "getrawmempool", "getrawtransaction", "gettransaction"
+    , "repairwallet"
+    , "sendfrom", "sendmany", "sendtoaddress", "settxfee", "submitblock"
+    , "validateaddress"
+    , "walletdenominate", "walletlock", "walletpassphrase", "walletpassphrasechange"
+    , "ztlock"
+    };
