@@ -124,6 +124,7 @@ bool Controller::onInit() {
         }
     }
 
+    view.setStatusBarWorking(true);
     stack.start(args);
 
     view.setMining(false);
@@ -362,6 +363,8 @@ void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
             std::string value = Utils::find("value", pairs);
             if(value == "Connecting" || value == "Connected") {
                 view.setStatusBarMessage(value);
+                if(value == "Connected")
+                    view.setStatusBarWorking(false);
                 std::string tcp = Utils::find("network.tcp.connections", pairs);
                 if (!tcp.empty()) {
                     view.setTCP(tcp);

@@ -51,13 +51,16 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
         new SettingsMenu(vcashApp, parent);
     });
 
-    vcashApp.view.walletLock = new StatusBarWallet(vcashApp, *this);
+    statusBarWallet = new StatusBarWallet(vcashApp, *this);
+    vcashApp.view.walletLock = statusBarWallet;
 
     double iconSz = wxMax(toolsImg->GetBestSize().GetHeight(),
                           vcashApp.view.walletLock->GetBestSize().GetHeight());
     SetMinHeight(iconSz);
     SetSize(-1, iconSz+2);
     parent.SendSizeEvent();
+
+    activityIndicator = new wxActivityIndicator(this, wxID_ANY, wxDefaultPosition, wxSize(iconSz,iconSz));
 
     Bind(wxEVT_SIZE, [this, &vcashApp, toolsImg, settingsImg](wxSizeEvent &event) {
 
@@ -73,7 +76,7 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
 #error "You must define one of: __WXGTK__, __WXMSW__ or __WXOSX__"
 #endif
         struct Local {
-            static void move(StatusBar &statusBar, Pane pane, wxStaticBitmap &bitmap) {
+            static void move(StatusBar &statusBar, Pane pane, wxWindow &bitmap) {
                 wxRect rect;
                 statusBar.GetFieldRect(pane, rect);
                 wxSize size = bitmap.GetSize();
@@ -84,12 +87,28 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
 
         Local::move(*this, Tools, *toolsImg);
         Local::move(*this, Settings, *settingsImg);
-        Local::move(*this, Locked, *view.walletLock);
+        Local::move(*this, Locked, *statusBarWallet);
+        Local::move(*this, Locked, *activityIndicator);
 
         event.Skip();
     });
 };
 
-void StatusBar::SetMessage(wxString msg) {
+void StatusBar::setMessage(wxString msg) {
     SetStatusText(msg, Msg);
+}
+
+void StatusBar::setWorking(bool working) {
+    bool oldWorking = activityIndicator->IsRunning();
+    if(oldWorking==working)
+        return;
+    if(working) {
+        statusBarWallet->Hide();
+        activityIndicator->Show();
+        activityIndicator->Start();
+    } else {
+        activityIndicator->Stop();
+        activityIndicator->Hide();
+        statusBarWallet->Show();
+    }
 }

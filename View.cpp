@@ -66,7 +66,11 @@ WalletStatus View::getWalletStatus() {
 // Status bar
 
 void View::setStatusBarMessage(const std::string &msg) {
-    statusBar->SetMessage(wxString(msg));
+    statusBar->setMessage(wxString(msg));
+}
+
+void View::setStatusBarWorking(bool working) {
+    statusBar->setWorking(working);
 }
 
 // Mining state
@@ -152,7 +156,9 @@ void View::messageBox(const std::string &msg, const std::string &title, long sty
 void View::notificationBox(const std::string &msg, const std::string &title) {
     wxNotificationMessage *notificationMessage = new wxNotificationMessage(wxString(title), wxString(msg), mainFrame);
 	#if (wxMAJOR_VERSION >= 3) && (wxMINOR_VERSION >= 1)
-	notificationMessage->SetIcon(Resources::vcashIcon);
+    wxIcon icon;
+    icon.CopyFromBitmap(wxBitmap(Resources::vcashImage64));
+	notificationMessage->SetIcon(icon);
 	#endif
     notificationMessage->Show(2);
 }

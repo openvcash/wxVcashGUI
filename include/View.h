@@ -48,6 +48,8 @@ namespace wxGUI {
 
         void setStatusBarMessage(const std::string &msg);
 
+        void setStatusBarWorking(bool working);
+
         // Account
         void setBalance(const std::string &balance);
 
