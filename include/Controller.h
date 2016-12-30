@@ -101,12 +101,17 @@ namespace wxGUI {
         // This method will be executed by GUI thread when we get an on_status
         // notification from Vcash stack. This is needed as all GUI operations
         // have to be performed by GUI thread,
-        void OnStatus(const std::map<std::string, std::string> &pairs);
+        void onStatus(const std::map<std::string, std::string> &pairs);
 
         // This method will be executed by GUI thread when we get an on_error
         // notification from Vcash stack. This is needed as all GUI operations
         // have to be performed by GUI thread,
-        void OnError(const std::map<std::string, std::string> &pairs);
+        void onError(const std::map<std::string, std::string> &pairs);
+
+        // This method will be executed by GUI thread when we get an on_alert
+        // notification from Vcash stack. This is needed as all GUI operations
+        // have to be performed by GUI thread,
+        void onAlert(const std::map<std::string, std::string> &pairs);
 
         // Returns the wallet HD keychain seed
         std::string getHDSeed();

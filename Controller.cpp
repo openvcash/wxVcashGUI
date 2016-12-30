@@ -76,37 +76,35 @@ wxStack::wxStack(View &view)
         , coin::stack() { }
 
 void wxStack::on_error(const std::map<std::string, std::string> &pairs) {
+    coin::stack::on_error(pairs);
+    std::string type = Utils::find("type", pairs);
     std::string value = Utils::find("value", pairs);
-    view.messageBox(value, "Fatal error", wxOK | wxICON_ERROR);
-    return;
 
-    // post event to GUI thread which will process the request 
-    // in Controller::OnError
-    OnErrorEvent onErrorEvent;
-    onErrorEvent.SetPairs(pairs);
-    wxPostEvent(view.mainFrame, onErrorEvent);
+    // toDo: This is troublesome as, the stack sometimes calls exit(0)
+    // right after on_error hence, view.mainFrame won't be able to process
+    // a posted event, but we shouldn't open the messageBox here as this
+    // is not the GUI thread
+
+    view.messageBox(type+" error.\n"+value, "Fatal error", wxOK | wxICON_ERROR);
 };
 
 void wxStack::on_status(const std::map<std::string, std::string> &pairs) {
-    // post event to GUI thread which will process the request 
-    // in Controller::OnStatus
+    coin::stack::on_status(pairs);
+    // post event to GUI thread which will process the request
+    // in Controller::onStatus
     OnStatusEvent onStatusEvent;
     onStatusEvent.SetPairs(pairs);
     wxPostEvent(view.mainFrame, onStatusEvent);
 };
 
 void wxStack::on_alert(const std::map<std::string, std::string> &pairs)  {
-#if 0
-    std::string txt = "";
-    for(auto iterator = pairs.begin(); iterator != pairs.end(); iterator++) {
-        txt += iterator->first + " -> " + iterator->second + "\n";
-    }
-    view.messageBox(txt, "Alert", wxOK | wxICON_ERROR);
-#endif
-    return;
+    coin::stack::on_alert(pairs);
+    // post event to GUI thread which will process the request
+    // in Controller::OnAlert
+    OnAlertEvent onAlertEvent;
+    onAlertEvent.SetPairs(pairs);
+    wxPostEvent(view.mainFrame, onAlertEvent);
 };
-
-
 
 Controller::Controller(View &view)
         : view(view)
@@ -278,16 +276,27 @@ std::string Controller::getHDSeed() {
     return stack.wallet_hd_keychain_seed();
 }
 
-void Controller::OnError(const std::map<std::string, std::string> &pairs) {
-    std::string value = Utils::find("value", pairs);
-    view.messageBox(value, "Fatal error", wxOK | wxICON_ERROR);
+void Controller::onError(const std::map<std::string, std::string> &pairs) {
+    std::string txt = "";
+    for(auto iterator = pairs.begin(); iterator != pairs.end(); iterator++) {
+        txt += iterator->first + " -> " + iterator->second + "\n";
+    }
+    view.messageBox(txt, "Fatal error", wxOK | wxICON_ERROR);
     stack.stop();
+}
+
+void Controller::onAlert(const std::map<std::string, std::string> &pairs) {
+    std::string txt = "";
+    for(auto iterator = pairs.begin(); iterator != pairs.end(); iterator++) {
+        txt += iterator->first + " -> " + iterator->second + "\n";
+    }
+    view.messageBox(txt, "Alert", wxOK | wxICON_EXCLAMATION);
 }
 
 // This method is called whenever the Vcash stack sends an on_status message. 
 // This method is guaranteed to run on the GUI thread, which is required for 
 // modifying elements in the GUI without crashing the application.
-void Controller::OnStatus(const std::map<std::string, std::string> &pairs) {
+void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
     //wxMutexGuiEnter();
     if (pairs.size() > 0) {
 #if 0

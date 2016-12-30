@@ -62,11 +62,15 @@ MainFrame::MainFrame(VcashApp &vcashApp)
     });
 
     Bind(wxEVT_ONSTATUS, [&vcashApp](OnStatusEvent &event) {
-        vcashApp.controller.OnStatus(event.GetPairs());
+        vcashApp.controller.onStatus(event.GetPairs());
     });
 
     Bind(wxEVT_ONERROR, [&vcashApp](OnErrorEvent &event) {
-        vcashApp.controller.OnError(event.GetPairs());
+        vcashApp.controller.onError(event.GetPairs());
+    });
+
+    Bind(wxEVT_ONALERT, [&vcashApp](OnAlertEvent &event) {
+        vcashApp.controller.onAlert(event.GetPairs());
     });
 
     auto moveToolsFrame = [this, &vcashApp, toolsFrame]() {
