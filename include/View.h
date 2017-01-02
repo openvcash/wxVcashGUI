@@ -31,6 +31,7 @@ namespace wxGUI {
     class AccountPage;
     enum class BulletColor;
     class ConsolePage;
+    class Controller;
     class HistoryPage;
     class MainFrame;
     class MiningPage;
@@ -101,7 +102,7 @@ namespace wxGUI {
 
         void notificationBox(const std::string &msg, const std::string &title);
 
-        std::pair<bool, std::string> restoreHDSeed();
+        std::pair<bool, std::string> restoreHDSeed(Controller &controller);
 
         MainFrame *mainFrame;
         TaskBarIcon *taskBarIcon;

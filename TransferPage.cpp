@@ -21,19 +21,18 @@
 #include <wx/valtext.h>
 #endif
 
-#include "coin/constants.hpp"
-
 #include "TransferPage.h"
 #include "VcashApp.h"
+#include "wxStack.h"
 
 using namespace wxGUI;
 
 TransferPage::TransferPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent) {
-    double vcashSupply = coin::constants::max_money_supply / coin::constants::coin;
+    double vcashMaxSupply = wxStack::maxMoneySupply / wxStack::oneVcash;
     int decimals = 6;
     wxFloatingPointValidator<double>
             payValidator(decimals, nullptr, wxNUM_VAL_ZERO_AS_BLANK | wxNUM_VAL_NO_TRAILING_ZEROES);
-    payValidator.SetRange(0, vcashSupply);
+    payValidator.SetRange(0, vcashMaxSupply);
 
     wxTextValidator toValidator(wxFILTER_ALPHANUMERIC);
 

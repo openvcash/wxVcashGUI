@@ -23,7 +23,6 @@
 #include "View.h"
 
 namespace wxGUI {
-
     class VcashApp : public wxApp {
     public:
         VcashApp();

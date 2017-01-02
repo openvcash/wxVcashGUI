@@ -84,9 +84,11 @@ VCASH_OBJECTS =  \
 	$(OBJS)\ToolsFrame.obj \
 	$(OBJS)\ToolsPanel.obj \
 	$(OBJS)\TransferPage.obj \
+	$(OBJS)\Utils.obj \
 	$(OBJS)\VcashApp.obj \
 	$(OBJS)\View.obj \
-	$(OBJS)\WalletActions.obj
+	$(OBJS)\WalletActions.obj \
+	$(OBJS)\wxStack.obj
 VCASH_RESOURCES =  \
 	$(OBJS)\vcash.res
 VCASH_LIBS_DEPS = \
@@ -484,12 +486,16 @@ $(OBJS)\ToolsPanel.obj: .\ToolsPanel.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\ToolsPanel.cpp
 $(OBJS)\TransferPage.obj: .\TransferPage.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\TransferPage.cpp
+$(OBJS)\Utils.obj: .\Utils.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\Utils.cpp
 $(OBJS)\VcashApp.obj: .\VcashApp.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\VcashApp.cpp
 $(OBJS)\View.obj: .\View.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\View.cpp
 $(OBJS)\WalletActions.obj: .\WalletActions.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\WalletActions.cpp
+$(OBJS)\wxStack.obj: .\wxStack.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\wxStack.cpp
 
 $(OBJS)\vcash.res: .\resources\windows\vcash.rc
 	rc /fo$@  /d WIN32 $(____DEBUGRUNTIME_3_p_1) /d _CRT_SECURE_NO_DEPRECATE=1 /d _CRT_NON_CONFORMING_SWPRINTFS=1 /d _SCL_SECURE_NO_WARNINGS=1 $(__NO_VC_CRTDBG_p_1)  /d __WXMSW__ $(__WXUNIV_DEFINE_p_1) $(__DEBUG_DEFINE_p_1) $(__NDEBUG_DEFINE_p_1) $(__EXCEPTIONS_DEFINE_p_1) $(__RTTI_DEFINE_p_1) $(__THREAD_DEFINE_p_1) $(__UNICODE_DEFINE_p_1) /i $(SETUPHDIR) /i $(WX_HOME)\include $(____CAIRO_INCLUDEDIR_FILENAMES_1_p) /i . $(__DLLFLAG_p_1) /d _WINDOWS /d NOPCH ./resources/windows/vcash.rc

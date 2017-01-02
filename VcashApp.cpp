@@ -39,8 +39,9 @@ bool VcashApp::OnInit() {
     Resources::init();
 
     // Create and fill in view
-    MainFrame *vcashFrame = new MainFrame(*this);
-    vcashFrame->Show(true);
+    MainFrame *mainFrame = new MainFrame(*this);
+    mainFrame->Show(true);
+    SetTopWindow(mainFrame);
 
     // Create taskbar icon
     taskBarIconEnabled = TaskBarIcon::isEnabled();

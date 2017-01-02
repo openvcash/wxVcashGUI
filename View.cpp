@@ -20,7 +20,6 @@
 #include "AccountPage.h"
 #include "AddressesPage.h"
 #include "ConsolePage.h"
-#include "EntryDialog.h"
 #include "HistoryPage.h"
 #include "MainFrame.h"
 #include "MiningPage.h"
@@ -168,6 +167,6 @@ void View::notificationBox(const std::string &msg, const std::string &title) {
     notificationMessage->Show(2);
 }
 
-std::pair<bool, std::string> View::restoreHDSeed() {
-    return WalletActions::restoreHDSeed(*mainFrame);
+std::pair<bool, std::string> View::restoreHDSeed(Controller &controller) {
+    return WalletActions::restoreHDSeed(controller, *mainFrame);
 }

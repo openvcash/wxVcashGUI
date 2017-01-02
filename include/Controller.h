@@ -13,26 +13,14 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include "wxStack.h"
+
+#include <map>
 #include <string>
 
-#include "coin/stack.hpp"
-
 namespace wxGUI {
-
-    class Controller;
     class View;
     enum class WalletStatus;
-
-    class wxStack : public coin::stack {
-    private:
-        View &view;
-
-    public:
-        wxStack(View &view);
-        void on_error(const std::map<std::string, std::string> &pairs) override;
-        void on_status(const std::map<std::string, std::string> &pairs) override;
-        void on_alert(const std::map<std::string, std::string> &pairs) override;
-    };
 
     class Controller {
     private:
@@ -76,9 +64,9 @@ namespace wxGUI {
         bool onWalletWantEncrypt(const std::string &password);
 
         // Called when wallet password must be changed.
-        void walletChangePassword(
-                const std::string &passphrase_old,
-                const std::string &password_new);
+        bool walletChangePassword(
+                const std::string &oldPassword,
+                const std::string &newPassword);
 
         // Called when wallet has to be unlocked with provided password.
         // Should unlock wallet using password and return true if successful.
@@ -116,7 +104,13 @@ namespace wxGUI {
         std::string getHDSeed();
 
         // Called when wallet has to be rescanned
-        void rescanWallet();      
+        void rescanWallet();
+
+        // Returns current Vcash version
+        std::string getVcashVersion();
+
+        // Returns true is seed is a valid HD seed
+        bool validateHDSeed(std::string &seed);
     };
 }
 

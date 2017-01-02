@@ -49,20 +49,20 @@ bool WalletActions::encrypt(VcashApp &vcashApp, wxWindow &parent) {
                     , { { wxT("Password"), wxTE_PASSWORD, wxT("Enter your password"), wxDefaultSize }
                       , { wxT("Confirm"), wxTE_PASSWORD, wxT("Reenter your password"), wxDefaultSize }
                       }
-                    , [](std::vector<wxString> values){
+                    , [&vcashApp](EntryDialog &dlg){
+                        std::vector<wxString> values = dlg.getValues();
                         // check that password and confirmation are the same
-                        return values[0] == values[1];
+                        if(!dlg.validate(values[0] == values[1]
+                                        ,wxT("Password and confirmation are different")))
+                            return false;
+                        else if(!dlg.validate(vcashApp.controller.onWalletWantEncrypt(values[0].ToStdString())
+                                             ,wxT("Encryption failed")))
+                            return false;
+                        else
+                            return true;
                     }
             );
-
-            switch(pair.first) {
-                case wxID_CANCEL:
-                    break;
-                case wxID_OK:
-                    result = vcashApp.controller.onWalletWantEncrypt(pair.second[0].ToStdString());
-                default:
-                    break;
-            }
+            result = pair.first == wxID_OK;
         }
     }
     vcashApp.view.setWalletStatus(vcashApp.controller.getWalletStatus());
@@ -73,8 +73,8 @@ void WalletActions::dumpHDSeed(VcashApp &vcashApp, wxWindow &parent) {
     new DumpHDSeedDlg(vcashApp, parent);
 }
 
-std::pair<bool, std::string> WalletActions::restoreHDSeed(wxWindow &parent) {
-    // toDo check that deterministic wallets are set on config.dat
+std::pair<bool, std::string> WalletActions::restoreHDSeed(Controller &controller, wxWindow &parent) {
+    // toDo check that deterministic wallets are set on config.dat. Seems like stack will check it
     wxString title = wxT("Create wallet");
 
     int result = wxMessageBox(
@@ -87,14 +87,18 @@ std::pair<bool, std::string> WalletActions::restoreHDSeed(wxWindow &parent) {
                 {wxT("HD seed"), wxTE_MULTILINE, wxT("Enter your hierarchical deterministic seed"), wxSize(300, 100)},
         };
 
-        auto pair = EntryDialog::run( parent, wxT("Restore wallet"), entries
-                , [](std::vector<wxString> values) {
-                    return !values[0].empty();
+        auto pair = EntryDialog::run(parent, wxT("Restore wallet"), entries
+                , [&controller](EntryDialog &dlg) {
+                    std::vector<wxString> values = dlg.getValues();
+
+                    std::string seed = dlg.getValues()[0].ToStdString();
+                    bool ok = !(seed.empty())
+                              && controller.validateHDSeed(seed);
+                    return dlg.validate(ok, wxT("This is not a valid hierarchical deterministic seed."));
                 }
         );
         if(pair.first == wxID_OK) {
             std::string seed = pair.second[0].ToStdString();
-            // toDo check that this is a valied HD seed
             return std::make_pair(true, seed);
         } else {
             wxMessageBox(
@@ -111,12 +115,6 @@ std::pair<bool, std::string> WalletActions::restoreHDSeed(wxWindow &parent) {
 }
 
 bool WalletActions::changePassword(VcashApp &vcashApp, wxWindow &parent) {
-    // toDo: we cannot currently check that walletChangePassword ended successfully.
-    // We need to modify wallet_change_passphrase on stack.hpp so that it returns a bool.
-    // Problem is wallet_change_passphrase runs in a different thread.
-    // toDo: wallet_change_passphrase does not modify lock status for wallet, but we let
-    // wallet locked if old password is weong. We need to lock in order to check provided
-    // old password was correct.
     wxString title = wxT("Change password");
 
     bool result = false;
@@ -137,44 +135,24 @@ bool WalletActions::changePassword(VcashApp &vcashApp, wxWindow &parent) {
                         "funds without this password."),
                     title, wxOK | wxICON_INFORMATION, &parent);
 
-            bool wasLocked = vcashApp.controller.isWalletLocked();
-            // lock wallet to be able to check old password
-            vcashApp.controller.onWalletWantLock();
-
             auto pair = EntryDialog::run(parent, title,
                                          { {wxT("Old password"),         wxTE_PASSWORD, wxT("Enter your old password"),   wxDefaultSize}
                                          , {wxT("New password"),         wxTE_PASSWORD, wxT("Enter your new password"),   wxDefaultSize}
                                          , {wxT("Confirm new password"), wxTE_PASSWORD, wxT("Reenter your new password"), wxDefaultSize}
-                                         }, [&vcashApp](std::vector<wxString> values) {
-                        return (values[1] == values[2]) // confirm new password and confirmation are the same
-                               && vcashApp.controller.onWalletWantUnlock(
-                                values[0].ToStdString()); // we can unlock if provided old password is correct
+                                         }, [&vcashApp](EntryDialog &dlg) {
+                        std::vector<wxString> values = dlg.getValues();
+                        // confirm new password and confirmation are the same
+                        if(!dlg.validate(values[1] == values[2]
+                                ,wxT("New password and confirmation are different")))
+                            return false;
+                        else if(!dlg.validate(vcashApp.controller.walletChangePassword(values[0].ToStdString(), values[1].ToStdString())
+                                ,wxT("Change of password failed. Maybe old password was incorrect")))
+                            return false;
+                        else
+                            return true;
                     }
             );
-
-            switch (pair.first) {
-                case wxID_CANCEL:
-                    // we cannot restore old locked status as we don't know old password
-                    if(!wasLocked) {
-                        wxMessageBox(
-                                wxT("Wallet was unlocked before but it could not\n"
-                                    "be unlocked now as old password is unknown"),
-                                title, wxOK | wxICON_INFORMATION, &parent);
-                    }
-                    break;
-                case wxID_OK:
-                    vcashApp.controller.walletChangePassword(
-                            pair.second[0].ToStdString(),
-                            pair.second[1].ToStdString());
-                    result = true; // here we are assuming password was changed successfully
-                    break;
-                default:
-                    break;
-            }
-
-            // Wallet could be currently unlocked. Lock it in case it was locked before
-            if(wasLocked)
-                vcashApp.controller.onWalletWantLock();
+            result = pair.first == wxID_OK;
         }
     }
     vcashApp.view.setWalletStatus(vcashApp.controller.getWalletStatus());
@@ -208,9 +186,13 @@ bool WalletActions::unlock(VcashApp &vcashApp, wxWindow &parent) {
         auto pair = EntryDialog::run(parent
                 , title
                 , { { wxT("Password"), wxTE_PASSWORD, wxT("Enter your password"), wxDefaultSize } }
-                , [&vcashApp](std::vector<wxString> values) {
-                    bool unlocked = vcashApp.controller.onWalletWantUnlock(values[0].ToStdString());
-                    return unlocked;
+                , [&vcashApp](EntryDialog &dlg) {
+                    std::vector<wxString> values = dlg.getValues();
+                    if(!dlg.validate(vcashApp.controller.onWalletWantUnlock(values[0].ToStdString())
+                                    ,wxT("Wallet could not be unlocked. Maybe password is incorrect")))
+                        return false;
+                    else
+                        return true;
                 }
         );
         result = pair.first == wxID_OK;
@@ -227,7 +209,7 @@ void WalletActions::rescan(VcashApp &vcashApp, wxWindow &parent) {
     if(result == wxYES) {
         result = wxMessageBox(
                 wxT("The wallet will shutdown. You will have to\n"
-                            "restart the wallet in order to complete the rescan."
+                    "restart the wallet in order to complete the rescan."
                 ),
                 title, wxOK | wxCANCEL | wxOK_DEFAULT | wxICON_INFORMATION, &parent);
         if(result == wxOK)

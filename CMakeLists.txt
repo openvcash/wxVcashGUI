@@ -52,9 +52,11 @@ set(SOURCE_FILES
         ToolsFrame.cpp
         ToolsPanel.cpp
         TransferPage.cpp
+        Utils.cpp
         VcashApp.cpp
         View.cpp
-        WalletActions.cpp)
+        WalletActions.cpp
+        wxStack.cpp)
 
 add_executable(vcash ${SOURCE_FILES})
 

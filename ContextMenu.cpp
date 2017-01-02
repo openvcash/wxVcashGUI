@@ -21,9 +21,6 @@
 #include "VcashApp.h"
 #include "WalletActions.h"
 
-#include "coin/constants.hpp"
-#include "coin/utility.hpp"
-
 using namespace wxGUI;
 
 ContextMenu::ContextMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
@@ -63,13 +60,13 @@ ContextMenu::ContextMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
         case About: {
             class AboutDlg : public ShowInfoDialog {
             public:
-                AboutDlg(wxWindow &parent) : ShowInfoDialog(parent, wxT("About wxVcash"), [this]() {
+                AboutDlg(VcashApp &vcashApp, wxWindow &parent) : ShowInfoDialog(parent, wxT("About wxVcash"), [this, &vcashApp]() {
                     wxStaticBitmap *bm= new wxStaticBitmap(this, wxID_ANY, wxBitmap(Resources::vcashImage64));
                     wxStaticText *text =
                             new wxStaticText(this, wxID_ANY,
                                              wxT("A wxWidgets wallet for Vcash.\n"
                                                          "Copyright (C) The Vcash Developers.\n\n"
-                                                         "Vcash version: "+coin::utility::format_version(coin::constants::version_client)));
+                                                         "Vcash version: "+vcashApp.controller.getVcashVersion()));
                     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
 
                     hbox->Add(bm, 0, wxALL | wxALIGN_CENTER, 10);
@@ -78,7 +75,7 @@ ContextMenu::ContextMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
                 }) {}
             };
 
-            new AboutDlg(parent);
+            new AboutDlg(vcashApp, parent);
             break;
         }
         case ChangePass: {
@@ -113,4 +110,3 @@ ContextMenu::ContextMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
             break;
     }
 }
- 

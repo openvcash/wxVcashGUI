@@ -11,102 +11,17 @@
  ******************************************************************************/
 
 #include "Controller.h"
-#include "EntryDialog.h"
 #include "HistoryPage.h"
 #include "MainFrame.h"
-#include "OnPairsEvent.h"
 #include "StatusBarWallet.h"
+#include "Utils.h"
 #include "View.h"
-
-#include "coin/constants.hpp"
-#include "coin/transaction_pool.hpp"
-#include "coin/zerotime.hpp"
-
-#include <algorithm>
-#include <thread>
 
 #ifndef _MSC_VER
 using std::isspace;
 #endif
 
 using namespace wxGUI;
-
-class Utils {
-private:
-    static const std::int64_t oneVcash = coin::constants::coin;
-public:
-    static std::int64_t toJohnoshis(double amount) {
-        return static_cast<std::int64_t >(amount*oneVcash);
-    }
-
-    static std::int64_t toJohnoshis(const std::string &amount) {
-        return toJohnoshis(std::stod(amount, nullptr));
-    }
-
-    static double fromJohnoshis(std::int64_t amount) {
-        return (double)amount/oneVcash;
-    }
-
-    static double fromJohnoshis(std::string &amount) {
-        return fromJohnoshis(std::stol(amount, nullptr));
-    }
-
-    static std::string formatted(double amount, int decimals) {
-        char buffer[256];
-        std::string format = "%."+std::to_string(decimals)+"f";
-        snprintf(buffer, sizeof(buffer), format.c_str(), amount);
-        std::string res = buffer;
-        return res;
-    }
-    
-    static std::string find(const std::string &key, const std::map<std::string, std::string> &pairs) {
-        auto it = pairs.find(key);
-        if (it != pairs.end())
-            return it->second;
-        else
-            return std::string("");
-    }
-
-    static bool isPrefix(const std::string &prefix, const std::string &str) {
-        auto res = std::mismatch(prefix.begin(), prefix.end(), str.begin());
-        return (res.first == prefix.end());
-    }
-};
-
-wxStack::wxStack(View &view)
-        : view(view)
-        , coin::stack() { }
-
-void wxStack::on_error(const std::map<std::string, std::string> &pairs) {
-    coin::stack::on_error(pairs);
-    std::string type = Utils::find("type", pairs);
-    std::string value = Utils::find("value", pairs);
-
-    // toDo: This is troublesome as, the stack sometimes calls exit(0)
-    // right after on_error hence, view.mainFrame won't be able to process
-    // a posted event, but we shouldn't open the messageBox here as this
-    // is not the GUI thread
-
-    view.messageBox(type+" error.\n"+value, "Fatal error", wxOK | wxICON_ERROR);
-};
-
-void wxStack::on_status(const std::map<std::string, std::string> &pairs) {
-    coin::stack::on_status(pairs);
-    // post event to GUI thread which will process the request
-    // in Controller::onStatus
-    OnStatusEvent onStatusEvent;
-    onStatusEvent.SetPairs(pairs);
-    wxPostEvent(view.mainFrame, onStatusEvent);
-};
-
-void wxStack::on_alert(const std::map<std::string, std::string> &pairs)  {
-    coin::stack::on_alert(pairs);
-    // post event to GUI thread which will process the request
-    // in Controller::OnAlert
-    OnAlertEvent onAlertEvent;
-    onAlertEvent.SetPairs(pairs);
-    wxPostEvent(view.mainFrame, onAlertEvent);
-};
 
 Controller::Controller(View &view)
         : view(view)
@@ -118,7 +33,7 @@ bool Controller::onInit() {
 
     bool isClient = false;
     if(!stack.wallet_exists(isClient)) {
-        auto pair = view.restoreHDSeed();
+        auto pair = view.restoreHDSeed(*this);
         if(pair.first) {
             args["wallet-seed"] = pair.second;
         }
@@ -202,51 +117,20 @@ WalletStatus Controller::getWalletStatus() {
 }
 
 bool Controller::onWalletWantLock() {
-    stack.wallet_lock();
-    //toDo: this is a busy-wait solution which additionally does
-    // guarantee a correct result. wallet_lock runs in a different
-    // thread :(
-    for(int i=0; i<50; i++) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        if (stack.wallet_is_locked()) {
-            return true;
-        }
-    }
-    return false;
+    return wxStack::lockWallet();
 }
 
 bool Controller::onWalletWantUnlock(const std::string &password) {
-    stack.wallet_unlock(password);
-    //toDo: this is a busy-wait solution which additionally does
-    // guarantee a correct result. wallet_unlock runs in a different
-    // thread :(
-    for(int i=0; i<50; i++) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        if (!stack.wallet_is_locked()) {
-            return true;
-        }
-    }
-    return false;
+    return wxStack::unlockWallet(password);
 }
 
 bool Controller::onWalletWantEncrypt(const std::string &password) {
-    stack.wallet_encrypt(password);
-    //toDo: this is a busy-wait solution which additionally does
-    // guarantee a correct result. wallet_encrypt runs in a different
-    // thread :(
-    for(int i=0; i<50; i++) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        if (!stack.wallet_is_crypted()) {
-            return true;
-        }
-    }
-    return false;
+    return wxStack::encryptWallet(password);
 }
 
-void Controller::walletChangePassword(
-        const std::string &passphrase_old,
-        const std::string &password_new) {
-  stack.wallet_change_passphrase(passphrase_old, password_new);
+bool Controller::walletChangePassword(const std::string &oldPassword
+                                     ,const std::string &newPassword) {
+    return wxStack::changePassword(oldPassword, newPassword);
 }
 
 void Controller::onMiningPressed(bool isMining) {
@@ -268,13 +152,10 @@ void Controller::onZerotimeLockTransaction(const std::string &txid) {
 }
 
 bool Controller::canZerotimeLock(const std::string &txid) {
-    return coin::globals::instance().is_zerotime_enabled()
-            && coin::transaction_pool::instance().exists(txid)
-            && (coin::zerotime::instance().locks().count(txid) == 0);
+    return wxStack::canZerotimeLock(txid);
 }
 
 std::string Controller::getHDSeed() {
-    std::cout << stack.wallet_hd_keychain_seed() << std::endl;
     return stack.wallet_hd_keychain_seed();
 }
 
@@ -442,7 +323,7 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
             } else if(value == "Loaded wallet") {
                 // Now that wallet has been loaded, set locked/unlocked status in GUI
                 walletLoaded = true;
-                view.setWalletStatus(stack.wallet_is_crypted() ? WalletStatus::Locked : WalletStatus::Unencrypted);
+                view.setWalletStatus(isWalletCrypted() ? WalletStatus::Locked : WalletStatus::Unencrypted);
                 goto end;
             } else if(value == "Loading wallet") {
                 std::string status = Utils::find("wallet.status", pairs);
@@ -678,4 +559,12 @@ void Controller::rescanWallet() {
     // It seems it only rescans main address in restored wallet
     stack.rescan_chain();
     view.mainFrame->Destroy();
+}
+
+std::string Controller::getVcashVersion() {
+    return wxStack::getVersion();
+}
+
+bool Controller::validateHDSeed(std::string &seed) {
+    return wxStack::validateHDSeed(seed);
 }

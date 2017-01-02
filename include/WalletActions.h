@@ -34,7 +34,7 @@ namespace wxGUI {
         static bool changePassword(VcashApp &vcashApp, wxWindow &parent);
         static void dumpHDSeed(VcashApp &vcashApp, wxWindow &parent);
         static bool encrypt(VcashApp &vcashApp, wxWindow &parent);
-        static std::pair<bool, std::string> restoreHDSeed(wxWindow &parent);
+        static std::pair<bool, std::string> restoreHDSeed(Controller &controller, wxWindow &parent);
         static bool lock(VcashApp &vcashApp, wxWindow &parent);
         static bool unlock(VcashApp &vcashApp, wxWindow &parent);
         static void rescan(VcashApp &vcashApp, wxWindow &parent);
