@@ -15,17 +15,13 @@
 #ifndef WX_PRECOMP
 #include <wx/button.h>
 #include <wx/sizer.h>
-#include <wx/statbmp.h>
 #include <wx/textdlg.h>
 #endif
 
 #include "EntryDialog.h"
-#include "Resources.h"
+#include "MainFrame.h"
 #include "VcashApp.h"
 #include "WalletActions.h"
-
-#include "coin/constants.hpp"
-#include "coin/utility.hpp"
 
 using namespace wxGUI;
 
@@ -266,85 +262,3 @@ DumpHDSeedDlg::DumpHDSeedDlg(VcashApp &vcashApp, wxWindow &parent)
     return vbox;
 }) {}
 
-SettingsMenu::SettingsMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
-    enum PopupMenu {
-        About, ChangePass, Encrypt, Lock, Seed, Unlock, Rescan
-    };
-
-    bool loaded = vcashApp.controller.isWalletLoaded();
-    if(loaded) {
-        wxMenu *submenu = new wxMenu();
-        if(!vcashApp.controller.isWalletLocked()) {
-            submenu->Append(Seed, wxT("&Show HD seed"));
-        } else {
-            submenu->Append(Seed, wxT("&Show HD seed (unlock first!)"));
-            submenu->Enable(Seed, false);
-        }
-        if(vcashApp.controller.isWalletCrypted())
-            submenu->Append(ChangePass, wxT("&Change password"));
-        if(!vcashApp.controller.isWalletCrypted())
-            submenu->Append(Encrypt, wxT("&Encrypt"));
-        if(vcashApp.controller.isWalletLocked())
-            submenu->Append(Unlock, wxT("&Unlock"));
-        else if(vcashApp.controller.isWalletCrypted()) {
-            submenu->Append(Lock, wxT("&Lock"));
-        }
-        submenu->Append(Rescan, wxT("&Rescan"));
-        AppendSubMenu(submenu, wxT("Wallet"));
-        AppendSeparator();
-    }
-
-    Append(About, wxT("&About"));
-
-    auto select = parent.GetPopupMenuSelectionFromUser(*this);
-
-    switch(select) {
-        case Encrypt: {
-            WalletActions::encrypt(vcashApp, parent);
-            break;
-        }
-        case ChangePass: {
-            WalletActions::changePassword(vcashApp, parent);
-            break;
-        }
-        case Seed: {
-            WalletActions::dumpHDSeed(vcashApp, parent);
-            break;
-        }
-        case Lock: {
-            WalletActions::lock(vcashApp, parent);
-            break;
-        }
-        case Unlock: {
-            WalletActions::unlock(vcashApp, parent);
-            break;
-        }
-        case Rescan: {
-            WalletActions::rescan(vcashApp, parent);
-            break;
-        }
-        case About: {
-            class AboutDlg : public ShowInfoDialog {
-            public:
-                AboutDlg(wxWindow &parent) : ShowInfoDialog(parent, wxT("About wxVcash"), [this]() {
-                    wxStaticBitmap *bm= new wxStaticBitmap(this, wxID_ANY, wxBitmap(Resources::vcashImage64));
-                    wxStaticText *text =
-                            new wxStaticText(this, wxID_ANY,
-                                             wxT("A wxWidgets wallet for Vcash.\n"
-                                                 "Copyright (C) The Vcash Developers.\n\n"
-                                                 "Vcash version: "+coin::utility::format_version(coin::constants::version_client)));
-                    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
-
-                    hbox->Add(bm, 0, wxALL | wxALIGN_CENTER, 10);
-                    hbox->Add(text, 0, wxALL | wxALIGN_CENTER, 10);
-                    return hbox;
-                }) {}
-            };
-
-            new AboutDlg(parent);
-            break;
-        }
-        default:
-            break;
-    }
-}

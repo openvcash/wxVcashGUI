@@ -16,8 +16,6 @@
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
-#include <wx/menu.h>
-#include <wx/msgdlg.h>
 #include <wx/window.h>
 #endif
 
@@ -42,9 +40,5 @@ namespace wxGUI {
         static void rescan(VcashApp &vcashApp, wxWindow &parent);
     };
 
-    class SettingsMenu : public wxMenu {
-    public:
-        SettingsMenu(VcashApp &vcashApp, wxWindow &parent);
-    };
 }
 #endif // WALLETACTIONS_H

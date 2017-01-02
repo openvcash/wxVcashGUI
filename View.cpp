@@ -27,6 +27,7 @@
 #include "Resources.h"
 #include "StatusBarWallet.h"
 #include "StatusBar.h"
+#include "TaskBarIcon.h"
 #include "ToolsPanel.h"
 #include "View.h"
 #include "WalletActions.h"
@@ -155,11 +156,15 @@ void View::messageBox(const std::string &msg, const std::string &title, long sty
 
 void View::notificationBox(const std::string &msg, const std::string &title) {
     wxNotificationMessage *notificationMessage = new wxNotificationMessage(wxString(title), wxString(msg), mainFrame);
-	#if (wxMAJOR_VERSION >= 3) && (wxMINOR_VERSION >= 1)
+#if (wxMAJOR_VERSION >= 3) && (wxMINOR_VERSION >= 1)
     wxIcon icon;
     icon.CopyFromBitmap(wxBitmap(Resources::vcashImage64));
-	notificationMessage->SetIcon(icon);
-	#endif
+    notificationMessage->SetIcon(icon);
+    notificationMessage->SetParent(mainFrame);
+#if defined (__WXMSW__)
+    wxNotificationMessage::UseTaskBarIcon(taskBarIcon);
+#endif
+#endif
     notificationMessage->Show(2);
 }
 

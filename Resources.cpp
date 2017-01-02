@@ -21,7 +21,6 @@
 #include "resources/greenR16.cpp"
 #include "resources/redR16.cpp"
 #include "resources/yellowR16.cpp"
-#include "resources/connecting22.cpp"
 
 #if defined (__WXGTK__)
 #include "resources/empty22.cpp"

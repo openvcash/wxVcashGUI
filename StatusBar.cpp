@@ -16,13 +16,13 @@
 #include <wx/msgdlg.h>
 #endif
 
+#include "ContextMenu.h"
 #include "Resources.h"
 #include "StatusBarImage.h"
 #include "StatusBar.h"
 #include "StatusBarWallet.h"
 #include "View.h"
 #include "VcashApp.h"
-#include "WalletActions.h"
 
 using namespace wxGUI;
 
@@ -48,7 +48,7 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
     });
 
     settingsImg->bindOnClick([&vcashApp, &parent](wxMouseEvent &event) {
-        new SettingsMenu(vcashApp, parent);
+        new ContextMenu(vcashApp, parent);
     });
 
     statusBarWallet = new StatusBarWallet(vcashApp, *this);

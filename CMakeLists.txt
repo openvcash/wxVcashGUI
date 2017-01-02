@@ -33,6 +33,7 @@ set(SOURCE_FILES
         AddressesPage.cpp
         BlockExplorer.cpp
         ConsolePage.cpp
+        ContextMenu.cpp
         Controller.cpp
         EntryDialog.cpp
         HistoryPage.cpp
@@ -47,6 +48,7 @@ set(SOURCE_FILES
         StatusBarWallet.cpp
         OnPairsEvent.cpp
         StatusBar.cpp
+        TaskBarIcon.cpp
         ToolsFrame.cpp
         ToolsPanel.cpp
         TransferPage.cpp

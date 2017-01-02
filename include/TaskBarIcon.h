@@ -1,5 +1,5 @@
 /******************************************************************************
- * wxVcashGUI: a GUI for Vcash, a decentralized currency 
+ * wxVcashGUI: a GUI for Vcash, a decentralized currency
  *             for the internet (https://vcash.info).
  *
  * Copyright (c) The Vcash Developers
@@ -9,35 +9,26 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  ******************************************************************************/
- 
-#ifndef VCASHAPP_H
-#define VCASHAPP_H
+
+#ifndef TASKBARICON_H
+#define TASKBARICON_H
 
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
-#include <wx/app.h>
+#include <wx/taskbar.h>
+#include <wx/window.h>
 #endif
 
-#include "Controller.h"
-#include "View.h"
-
 namespace wxGUI {
+    class VcashApp;
 
-    class VcashApp : public wxApp {
+    class TaskBarIcon : public wxTaskBarIcon {
     public:
-        VcashApp();
-        void exit();
-        bool canExit();
-
-        Controller controller;
-        View view;
-        bool taskBarIconEnabled;
-
-    private:
-        bool OnInit();
-        int OnExit();
+        TaskBarIcon(VcashApp &vcashApp);
+        void disable();
+        static bool isEnabled();
     };
-}
+};
 
-#endif // VCASHAPP_H
+#endif // TASKBARICON_H

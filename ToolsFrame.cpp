@@ -20,7 +20,7 @@
 #include "Resources.h"
 #include "ToolsFrame.h"
 #include "ToolsPanel.h"
-#include <VcashApp.h>
+#include "VcashApp.h"
 
 #ifdef __WXGTK__
 #define STYLE wxFRAME_FLOAT_ON_PARENT
@@ -33,16 +33,16 @@ using namespace wxGUI;
 ToolsFrame::ToolsFrame(VcashApp &vcashApp, wxWindow &parent)
     : wxFrame(&parent, wxID_ANY, wxT("ToolsFrame"), wxDefaultPosition, wxDefaultSize, STYLE) {
 
-SetIcon(Resources::vcashIcon);
+    SetIcon(Resources::vcashIcon);
 
-ToolsPanel *toolsPanel = new ToolsPanel(vcashApp, *this);
+    ToolsPanel *toolsPanel = new ToolsPanel(vcashApp, *this);
 
-vcashApp.view.toolsFrame = this;
+    vcashApp.view.toolsFrame = this;
 
-wxSizer *sizerV = new wxBoxSizer(wxVERTICAL);
-sizerV->Add(toolsPanel
-           , 1        // make horizontally stretchable
-           , wxEXPAND // make it fill parent
-);
-SetSizerAndFit(sizerV);
+    wxSizer *sizerV = new wxBoxSizer(wxVERTICAL);
+    sizerV->Add(toolsPanel
+               , 1        // make horizontally stretchable
+               , wxEXPAND // make it fill parent
+    );
+    SetSizerAndFit(sizerV);
 }

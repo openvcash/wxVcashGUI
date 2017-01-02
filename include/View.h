@@ -37,6 +37,7 @@ namespace wxGUI {
     class StatisticsPage;
     class StatusBarWallet;
     class StatusBar;
+    class TaskBarIcon;
     class ToolsFrame;
     class ToolsPanel;
     enum class WalletStatus;
@@ -103,6 +104,7 @@ namespace wxGUI {
         std::pair<bool, std::string> restoreHDSeed();
 
         MainFrame *mainFrame;
+        TaskBarIcon *taskBarIcon;
         ToolsFrame *toolsFrame;
         StatusBar *statusBar;
         ToolsPanel *toolsPanel;

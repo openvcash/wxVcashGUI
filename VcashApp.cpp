@@ -12,6 +12,7 @@
 
 #include "MainFrame.h"
 #include "Resources.h"
+#include "TaskBarIcon.h"
 #include "ToolsFrame.h"
 #include "VcashApp.h"
 
@@ -41,9 +42,38 @@ bool VcashApp::OnInit() {
     MainFrame *vcashFrame = new MainFrame(*this);
     vcashFrame->Show(true);
 
+    // Create taskbar icon
+    taskBarIconEnabled = TaskBarIcon::isEnabled();
+    if(taskBarIconEnabled)
+        view.taskBarIcon = new TaskBarIcon(*this);
+
     return controller.onInit();
 }
 
+// This method is called before the main frame is destroyed. If
+// false is returned, exit is aborted.
+bool VcashApp::canExit() {
+    if(!controller.isWalletLoaded())
+        return false;
+    else {
+        if(taskBarIconEnabled)
+            view.taskBarIcon->disable();
+        return true;
+    }
+}
+
+// This method is called once the main frame has been destroyed
 int VcashApp::OnExit() {
+    // Destroy taskbar icon (it isn't destroyed automatically)
+    if(taskBarIconEnabled)
+        view.taskBarIcon->~TaskBarIcon();
+    // stop the stack
     return controller.onExit();
+}
+
+// Calling this method is the same as clicking close button on main frame.
+void VcashApp::exit() {
+    // Closes main frame. As a result, all wxWindows are destroyed.
+    // Finally, OnExit is called and the stack is stopped.
+    view.mainFrame->Close();
 }

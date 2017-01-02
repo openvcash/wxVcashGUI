@@ -18,6 +18,7 @@
 #include <wx/textdlg.h>
 #endif
 
+#include "ContextMenu.h"
 #include "Resources.h"
 #include "StatusBarWallet.h"
 #include "VcashApp.h"
@@ -38,17 +39,14 @@ StatusBarWallet::StatusBarWallet(VcashApp &vcashApp, wxWindow &parent)
                 WalletActions::unlock(vcashApp, parent);
                 break;
             }
-
             case WalletStatus::Unlocked: {
                 WalletActions::lock(vcashApp, parent);
                 break;
             }
-
             case WalletStatus::Unencrypted: {
                 WalletActions::encrypt(vcashApp, parent);
                 break;
             }
-
             case WalletStatus::Unknown: {
                 break;
             }
@@ -56,7 +54,7 @@ StatusBarWallet::StatusBarWallet(VcashApp &vcashApp, wxWindow &parent)
     });
 
     bindOnRightClick([&parent, &vcashApp](wxMouseEvent &ev) {
-       new SettingsMenu(vcashApp, parent);
+       new ContextMenu(vcashApp, parent);
     });
 
     setWalletStatus(walletStatus);

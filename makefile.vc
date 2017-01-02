@@ -65,6 +65,7 @@ VCASH_OBJECTS =  \
 	$(OBJS)\AddressesPage.obj \
 	$(OBJS)\BlockExplorer.obj \
 	$(OBJS)\ConsolePage.obj \
+	$(OBJS)\ContextMenu.obj \
 	$(OBJS)\Controller.obj \
 	$(OBJS)\EntryDialog.obj \
 	$(OBJS)\HistoryPage.obj \
@@ -79,6 +80,7 @@ VCASH_OBJECTS =  \
 	$(OBJS)\OnPairsEvent.obj \
 	$(OBJS)\ShowInfoDialog.obj \
 	$(OBJS)\StatusBar.obj \
+	$(OBJS)\TaskBarIcon.obj \
 	$(OBJS)\ToolsFrame.obj \
 	$(OBJS)\ToolsPanel.obj \
 	$(OBJS)\TransferPage.obj \
@@ -444,6 +446,8 @@ $(OBJS)\BlockExplorer.obj: .\BlockExplorer.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\BlockExplorer.cpp
 $(OBJS)\ConsolePage.obj: .\ConsolePage.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\ConsolePage.cpp
+$(OBJS)\ContextMenu.obj: .\ContextMenu.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\ContextMenu.cpp
 $(OBJS)\Controller.obj: .\Controller.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\Controller.cpp
 $(OBJS)\EntryDialog.obj: .\EntryDialog.cpp
@@ -472,6 +476,8 @@ $(OBJS)\OnPairsEvent.obj: .\OnPairsEvent.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\OnPairsEvent.cpp
 $(OBJS)\StatusBar.obj: .\StatusBar.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\StatusBar.cpp
+$(OBJS)\TaskBarIcon.obj: .\TaskBarIcon.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\TaskBarIcon.cpp
 $(OBJS)\ToolsFrame.obj: .\ToolsFrame.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(VCASH_CXXFLAGS) .\ToolsFrame.cpp
 $(OBJS)\ToolsPanel.obj: .\ToolsPanel.cpp
