@@ -17,10 +17,14 @@
 
 #ifndef WX_PRECOMP
 #include <wx/app.h>
+#include <wx/cmdline.h>
 #endif
 
 #include "Controller.h"
 #include "View.h"
+
+#include <map>
+#include <string>
 
 namespace wxGUI {
     class VcashApp : public wxApp {
@@ -36,6 +40,10 @@ namespace wxGUI {
     private:
         bool OnInit();
         int OnExit();
+        void OnInitCmdLine(wxCmdLineParser &parser);
+        bool OnCmdLineParsed(wxCmdLineParser &parser);
+        std::map<std::string, std::string> args;
+        static const wxCmdLineEntryDesc cmdLineDesc[];
     };
 }
 

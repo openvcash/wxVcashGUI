@@ -31,7 +31,7 @@ namespace wxGUI {
         Controller(View &view);
 
         // Called when application is initialized
-        bool onInit();
+        bool onInit(std::map<std::string, std::string> &args);
 
         // Called when application is about to exit
         int onExit();
@@ -111,6 +111,9 @@ namespace wxGUI {
 
         // Returns true is seed is a valid HD seed
         bool validateHDSeed(std::string &seed);
+
+        // Returns true is there is wallet in file system
+        bool walletExists(bool isClient);
     };
 }
 

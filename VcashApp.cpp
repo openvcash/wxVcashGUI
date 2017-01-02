@@ -14,6 +14,7 @@
 #include "Resources.h"
 #include "TaskBarIcon.h"
 #include "ToolsFrame.h"
+#include "Utils.h"
 #include "VcashApp.h"
 
 #ifdef __WXGTK__
@@ -32,6 +33,53 @@ VcashApp::VcashApp() : view(), controller(view) {
 #endif
 }
 
+const wxCmdLineEntryDesc VcashApp::cmdLineDesc[] =  {
+    { wxCMD_LINE_SWITCH , "?", "help", "shows command line help",
+                wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL },
+    { wxCMD_LINE_SWITCH , "ib", "import-blockchain", "imports blockchain from blockchain.dat file",
+            wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL },
+    { wxCMD_LINE_SWITCH , "eb", "export-blockchain", "exports blockchain to blockchain.dat file",
+            wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL },
+    { wxCMD_LINE_SWITCH , "ewt", "erase-wallet-transactions", "erases wallet transactions",
+            wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL },
+    { wxCMD_LINE_OPTION, "ws", "wallet-seed", "restores wallet from hierarchical deterministic seed",
+            wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL  },
+    { wxCMD_LINE_OPTION, "m", "mode", "use spv for light client (currenty unsupported)",
+            wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL  },
+    { wxCMD_LINE_NONE }
+};
+
+// These two methods let us parse command line args
+void VcashApp::OnInitCmdLine(wxCmdLineParser &parser) {
+    parser.SetLogo(wxT("\nVcash version: "+controller.getVcashVersion()+"\nCopyright (C) The Vcash Developers\n"));
+    parser.SetDesc(cmdLineDesc);
+    parser.AddUsageText(wxT("\n"));
+}
+
+bool VcashApp::OnCmdLineParsed(wxCmdLineParser& parser) {
+    wxString value;
+
+    if (parser.Parse() == 0) {
+        if(parser.Found("?")) {
+            parser.Usage();
+            return false;
+        } else {
+            if(parser.Found("ib"))
+                args["import-blockchain"] = "1";
+            if(parser.Found("eb"))
+                args["export-blockchain"] = "1";
+            if(parser.Found("ewt"))
+                args["erase-wallet-transactions"] = "1";
+            if(parser.Found("ws", &value))
+                args["wallet-seed"] = value.ToStdString();
+            if(parser.Found("m", &value))
+                args["mode"] = value.ToStdString();
+        }
+        return true;
+    } else
+        return false;
+}
+
 bool VcashApp::OnInit() {
     if (!wxApp::OnInit())
         return false;
@@ -43,12 +91,25 @@ bool VcashApp::OnInit() {
     mainFrame->Show(true);
     SetTopWindow(mainFrame);
 
+    // try to restore seed if no wallet exists
+    bool isClient = Utils::find("mode", args) == "spv";
+    if(!controller.walletExists(isClient)) {
+        std::string seed = Utils::find("wallet-seed", args);
+        if(seed.empty()) {
+            auto pair = view.restoreHDSeed(*this);
+            if (pair.first) {
+                seed = pair.second;
+                args["wallet-seed"] = seed;
+            }
+        }
+    }
+
     // Create taskbar icon
     taskBarIconEnabled = TaskBarIcon::isEnabled();
     if(taskBarIconEnabled)
         view.taskBarIcon = new TaskBarIcon(*this);
 
-    return controller.onInit();
+    return controller.onInit(args);
 }
 
 // This method is called before the main frame is destroyed. If
@@ -78,3 +139,5 @@ void VcashApp::exit() {
     // Finally, OnExit is called and the stack is stopped.
     view.mainFrame->Close();
 }
+
+

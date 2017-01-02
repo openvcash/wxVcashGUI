@@ -28,6 +28,7 @@
 #include "StatusBar.h"
 #include "TaskBarIcon.h"
 #include "ToolsPanel.h"
+#include "VcashApp.h"
 #include "View.h"
 #include "WalletActions.h"
 
@@ -167,6 +168,6 @@ void View::notificationBox(const std::string &msg, const std::string &title) {
     notificationMessage->Show(2);
 }
 
-std::pair<bool, std::string> View::restoreHDSeed(Controller &controller) {
-    return WalletActions::restoreHDSeed(controller, *mainFrame);
+std::pair<bool, std::string> View::restoreHDSeed(VcashApp &vcashApp) {
+    return WalletActions::restoreHDSeed(vcashApp.controller, *mainFrame);
 }

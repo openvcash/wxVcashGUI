@@ -28,17 +28,7 @@ Controller::Controller(View &view)
         , stack(view)
         , walletLoaded(false) { }
 
-bool Controller::onInit() {
-    std::map<std::string,std::string> args;
-
-    bool isClient = false;
-    if(!stack.wallet_exists(isClient)) {
-        auto pair = view.restoreHDSeed(*this);
-        if(pair.first) {
-            args["wallet-seed"] = pair.second;
-        }
-    }
-
+bool Controller::onInit(std::map<std::string, std::string> &args) {
     view.setStatusBarWorking(true);
     stack.start(args);
 
@@ -567,4 +557,8 @@ std::string Controller::getVcashVersion() {
 
 bool Controller::validateHDSeed(std::string &seed) {
     return wxStack::validateHDSeed(seed);
+}
+
+bool Controller::walletExists(bool isClient) {
+    return stack.wallet_exists(isClient);
 }
