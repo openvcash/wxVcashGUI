@@ -81,7 +81,7 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
                 statusBar.GetFieldRect(pane, rect);
                 wxSize size = bitmap.GetSize();
                 bitmap.Move(rect.x + (rect.width - size.x) / 2
-                        , rect.y + (rect.height - size.y) / 2 - ICON_OFFSET);
+                           , rect.y + (rect.height - size.y) / 2 - ICON_OFFSET);
             }
         };
 

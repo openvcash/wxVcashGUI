@@ -73,7 +73,6 @@ void WalletActions::dumpHDSeed(VcashApp &vcashApp, wxWindow &parent) {
     new DumpHDSeedDlg(vcashApp, parent);
 }
 
-
 std::pair<bool, std::string> WalletActions::restoreHDSeed(wxWindow &parent) {
     // toDo check that deterministic wallets are set on config.dat
     wxString title = wxT("Create wallet");
@@ -162,7 +161,6 @@ bool WalletActions::changePassword(VcashApp &vcashApp, wxWindow &parent) {
                                     "be unlocked now as old password is unknown"),
                                 title, wxOK | wxICON_INFORMATION, &parent);
                     }
-
                     break;
                 case wxID_OK:
                     vcashApp.controller.walletChangePassword(
@@ -239,7 +237,6 @@ void WalletActions::rescan(VcashApp &vcashApp, wxWindow &parent) {
 
 DumpHDSeedDlg::DumpHDSeedDlg(VcashApp &vcashApp, wxWindow &parent)
         : ShowInfoDialog(parent, wxT("Show HD seed"), [this, &vcashApp]() {
-
     wxString warning = wxT("This is your hierarchical deterministic seed.\n"
                            "Anyone knowing this seed can access your\n"
                            "funds. Keep it safe!");

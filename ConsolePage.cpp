@@ -28,7 +28,7 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
         , wxPanel(&parent) {
     vcashApp.view.consolePage = this;
 
-    int cols = 1, vgap = 10, hgap = 15;
+    const int cols = 1, vgap = 10, hgap = 15;
     wxFlexGridSizer *fgs = new wxFlexGridSizer(cols, vgap, hgap);
 
     output = new wxRichTextCtrl(
@@ -145,8 +145,7 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
         }
     });
 
-
-    output->Bind(wxEVT_SET_FOCUS, [this](wxFocusEvent &) {
+    output->Bind(wxEVT_SET_FOCUS, [this](wxFocusEvent &ev) {
         command->SetFocus();
     });
 

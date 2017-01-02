@@ -58,8 +58,6 @@ void Resources::init() {
     greenR = wxBITMAP_PNG_FROM_DATA(greenR16);
     yellowR = wxBITMAP_PNG_FROM_DATA(yellowR16);
 
-
-
     #if defined (__WXGTK__)
     empty = wxBITMAP_PNG_FROM_DATA(empty22);
     locked = wxBITMAP_PNG_FROM_DATA(locked22);

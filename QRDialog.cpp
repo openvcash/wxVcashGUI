@@ -88,7 +88,6 @@ using namespace wxGUI;
 
 wxGUI::QRDialog::QRDialog(wxWindow &parent, const wxString &title, const wxString &str)
         : ShowInfoDialog(parent, title, [this, str]() {
-
             wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
             wxStaticText *header = new wxStaticText(this, wxID_ANY, wxString(str));
@@ -98,5 +97,4 @@ wxGUI::QRDialog::QRDialog(wxWindow &parent, const wxString &title, const wxStrin
             vbox->Add(qr, 0, wxALIGN_CENTER  | wxALL, 10);
 
             return vbox;
-          })
-{ }
+          }) { }

@@ -192,12 +192,10 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
                     wxLaunchDefaultBrowser(BlockExperts::transactionURL(txid));
                     break;
                 }
-
                 case VcashExplorer: {
                     wxLaunchDefaultBrowser(VcashExplorer::transactionURL(txid));
                     break;
                 }
-
                 case Copy: {
                     if (wxTheClipboard->Open()) {
                         // wxTheClipboard->Clear(); doesn't work on Windows
@@ -207,23 +205,19 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
                     }
                     break;
                 }
-
                 case Info: {
                     std::string cmd = "gettransaction " + txid;
                     vcashApp.controller.onConsoleCommandEntered(cmd);
                     break;
                 }
-
                 case Lock: {
                     vcashApp.controller.onZerotimeLockTransaction(txid);
                     break;
                 }
-
                 case QR: {
                     new QRDialog(*this, wxT("QR transaction"), wxString(txid));
                     break;
                 }
-
                 default: {
                     break;
                 };

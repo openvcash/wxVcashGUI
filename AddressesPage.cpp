@@ -81,8 +81,8 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
 
     SetSizerAndFit(pageSizer);
 
-    listCtrl->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, [this, &vcashApp](wxListEvent &event) {
-        long index = event.GetIndex();
+    listCtrl->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, [this, &vcashApp](wxListEvent &ev) {
+        long index = ev.GetIndex();
         bool onAddress = index >= 0;
 
         enum PopupMenu {
@@ -121,7 +121,6 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
                 }
                 break;
             }
-
             case BlockExperts: {
                 if (index >= 0) {
                     std::string address = listCtrl->GetItemText(index, Address).ToStdString();
@@ -129,7 +128,6 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
                 }
                 break;
             }
-
             case VcashExplorer: {
                 if (index >= 0) {
                     std::string address = listCtrl->GetItemText(index, Address).ToStdString();
@@ -137,25 +135,21 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
                 }
                 break;
             }
-
             case New: {
                 wxString account = (index >= 0) ? listCtrl->GetItemText(index, Account) : wxT("");
                 vcashApp.controller.onConsoleCommandEntered("getnewaddress " + account.ToStdString());
                 break;
             }
-
             case QR:
                 if (index >= 0) {
                     wxString address = listCtrl->GetItemText(index, Address);
                     new QRDialog(*this, wxT("QR Address"), address);
                 }
                 break;
-
             default:
                 break;
         }
-
-        event.Skip();
+        ev.Skip();
     });
 
     // Sort is according to first element in order vector. true means ascending order.
@@ -179,6 +173,7 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
             sortData.order[0] = p;
             listCtrl->SortItems(cmpAddresses, (wxIntPtr) &sortData);
         }
+        ev.Skip();
     });
 }
 
@@ -226,7 +221,6 @@ void AddressesPage::emboldenAddress(const std::string &address, bool bold) {
             listCtrl->GetItem(info);
             wxFont font = info.GetFont();
             font.SetWeight(bold ? wxFONTWEIGHT_BOLD : wxFONTWEIGHT_NORMAL);
-
             info.SetFont(font);
             // It seems we need to temporarily change colour in order to effectively change the font
             wxColour colour = info.GetBackgroundColour();

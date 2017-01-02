@@ -26,7 +26,7 @@ ShowInfoDialog::ShowInfoDialog(wxWindow &parent, const wxString &title, std::fun
 
     wxButton *closeBt = new wxButton(this, wxID_CLOSE, wxT("Close"));
 
-    int border = 10;
+    const int border = 10;
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     vbox->Add(contents(), 0, wxALIGN_CENTER  | wxALL, border);
     vbox->Add(closeBt, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, border);
