@@ -53,8 +53,8 @@ StatusBarWallet::StatusBarWallet(VcashApp &vcashApp, wxWindow &parent)
         }
     });
 
-    bindOnRightClick([&parent, &vcashApp](wxMouseEvent &ev) {
-       new ContextMenu(vcashApp, parent);
+    bindOnRightClick([&vcashApp](wxMouseEvent &ev) {
+        vcashApp.view.showContextMenu(vcashApp);
     });
 
     setWalletStatus(walletStatus);

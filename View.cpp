@@ -20,6 +20,7 @@
 #include "AccountPage.h"
 #include "AddressesPage.h"
 #include "ConsolePage.h"
+#include "ContextMenu.h"
 #include "HistoryPage.h"
 #include "MainFrame.h"
 #include "MiningPage.h"
@@ -27,6 +28,7 @@
 #include "StatusBarWallet.h"
 #include "StatusBar.h"
 #include "TaskBarIcon.h"
+#include "ToolsFrame.h"
 #include "ToolsPanel.h"
 #include "VcashApp.h"
 #include "View.h"
@@ -170,4 +172,18 @@ void View::notificationBox(const std::string &msg, const std::string &title) {
 
 std::pair<bool, std::string> View::restoreHDSeed(VcashApp &vcashApp) {
     return WalletActions::restoreHDSeed(vcashApp.controller, *mainFrame);
+}
+
+void View::showContextMenu(VcashApp &vcashApp, bool atClickPosition) {
+    wxPoint p = atClickPosition ? wxDefaultPosition : walletLock->GetPosition() +  statusBar->GetPosition();
+    new ContextMenu(vcashApp, *mainFrame, p);
+}
+
+void View::showHideToolsFrame(bool showAlso) {
+    if(toolsFrame->IsShown())
+        toolsFrame->Hide();
+    else if (showAlso) {
+        toolsFrame->Show(true);
+        toolsFrame->Raise();
+    }
 }

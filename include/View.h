@@ -104,6 +104,10 @@ namespace wxGUI {
 
         std::pair<bool, std::string> restoreHDSeed(VcashApp &vcashApp);
 
+        void showContextMenu(VcashApp &vcashApp, bool atClickPosition = true);
+
+        void showHideToolsFrame(bool showAlso = true);
+
         MainFrame *mainFrame;
         TaskBarIcon *taskBarIcon;
         ToolsFrame *toolsFrame;

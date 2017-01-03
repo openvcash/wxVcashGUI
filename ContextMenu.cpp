@@ -23,7 +23,7 @@
 
 using namespace wxGUI;
 
-ContextMenu::ContextMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
+ContextMenu::ContextMenu(VcashApp &vcashApp, wxWindow &parent, wxPoint pos) : wxMenu() {
     enum PopupMenu {
         About, ChangePass, Encrypt, Exit, Lock, Rescan, Seed, Unlock
     };
@@ -54,7 +54,7 @@ ContextMenu::ContextMenu(VcashApp &vcashApp, wxWindow &parent) : wxMenu() {
     Append(Exit, wxT("&Exit"));
     Enable(Exit, loaded);
 
-    auto select = parent.GetPopupMenuSelectionFromUser(*this);
+    auto select = parent.GetPopupMenuSelectionFromUser(*this, pos);
 
     switch(select) {
         case About: {

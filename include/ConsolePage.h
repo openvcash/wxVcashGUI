@@ -37,7 +37,7 @@ namespace wxGUI {
     private:
         wxRichTextCtrl *output;
         wxTextCtrl *command;
-        bool wasDoubleClick;
+        bool wasDoubleClick, focusFromCommand;
         int consecutiveEnters;
 
         // Commands for autocompleting

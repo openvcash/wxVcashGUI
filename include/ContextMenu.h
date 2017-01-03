@@ -25,7 +25,7 @@ namespace wxGUI {
 
     class ContextMenu : public wxMenu {
     public:
-        ContextMenu(VcashApp &vcashApp, wxWindow &parent);
+        ContextMenu(VcashApp &vcashApp, wxWindow &parent, wxPoint pos = wxDefaultPosition);
     };
 }
 

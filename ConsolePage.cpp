@@ -25,6 +25,7 @@ using namespace wxGUI;
 ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
         : consecutiveEnters(0)
         , wasDoubleClick(false)
+        , focusFromCommand(false)
         , wxPanel(&parent) {
     vcashApp.view.consolePage = this;
 
@@ -107,7 +108,7 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
             command->SelectNone();
             command->SetInsertionPointEnd();
 #endif
-            ev.Skip(true);
+            ev.Skip();
         }
     };
 
@@ -130,7 +131,7 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
                 else
                     command->Clear();
 #endif
-                ev.Skip(true);
+                ev.Skip();
                 break;
             case WXK_PAGEUP:
                 output->PageUp();
@@ -141,12 +142,25 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
                 output->ScrollIntoView(output->GetCaretPosition(),WXK_PAGEUP);
                 break;
             default:
-                ev.Skip(true);
+                ev.Skip();
         }
     });
 
-    output->Bind(wxEVT_SET_FOCUS, [this](wxFocusEvent &ev) {
+    command->Bind(wxEVT_KILL_FOCUS, [this](wxFocusEvent &ev) {
+       focusFromCommand = true;
+        ev.Skip();
+    });
+
+    output->Bind(wxEVT_SET_FOCUS, [this, &parent](wxFocusEvent &ev) {
+#if defined(__WXMSW__)
         command->SetFocus();
+#else
+        if(focusFromCommand)
+            parent.SetFocus();
+        else
+            command->SetFocus();
+#endif
+        focusFromCommand = false;
     });
 
     auto onClick = [this, &vcashApp](wxMouseEvent &ev) {

@@ -515,6 +515,11 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
                     txMsg = done ? (isOutgoing ? "Sent" : "Received")
                                  : (isOutgoing ? "Sending (0/1)" : "Receiving (0/1)");
 
+                    // toDo constant 4 corresponds to coin::transaction::confirmations + 1
+                    // In any case, if wallet is shut down before this number of confirmations
+                    // has been reached, next time we restart the wallet, the number of
+                    // confirmations won't get properly updated :(
+                    // line 4926 of stack_impl.cpp must be modified accordingly to fix this issue.
                     if(isZeroTime)
                         txMsg += " (ZT)"; // is confirmed but off chain (ZeroTime)
                     else if(confirms > 0 && confirms < 4)

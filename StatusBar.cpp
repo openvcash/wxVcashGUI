@@ -36,19 +36,24 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
 
     StatusBarImage *toolsImg = new StatusBarImage(*this, Resources::tools);
     StatusBarImage *settingsImg = new StatusBarImage(*this, Resources::settings);
-    toolsImg->bindOnClick([&toolsFrame, toolsImg](wxMouseEvent &event) {
-        int x = event.GetX();
-        int y = event.GetY();
 
-        wxPoint point = toolsImg->ClientToScreen(wxPoint(x, y));
-        toolsFrame.Move(point.x, point.y);
-        toolsFrame.Show(true);
-        toolsFrame.Raise();
-        toolsFrame.SetFocus();
+    Bind(wxEVT_RIGHT_DOWN, [&vcashApp](wxMouseEvent &ev) {
+        vcashApp.view.showHideToolsFrame(false);
+        ev.Skip();
     });
 
-    settingsImg->bindOnClick([&vcashApp, &parent](wxMouseEvent &event) {
-        new ContextMenu(vcashApp, parent);
+    Bind(wxEVT_LEFT_DOWN, [&vcashApp](wxMouseEvent &ev) {
+        vcashApp.view.showHideToolsFrame(false);
+        ev.Skip();
+    });
+
+    toolsImg->bindOnClick([&vcashApp](wxMouseEvent &ev) {
+        vcashApp.view.showHideToolsFrame(true);
+        ev.Skip();
+    });
+
+    settingsImg->bindOnClick([&vcashApp](wxMouseEvent &ev) {
+        vcashApp.view.showContextMenu(vcashApp);
     });
 
     statusBarWallet = new StatusBarWallet(vcashApp, *this);
@@ -62,7 +67,7 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
 
     activityIndicator = new wxActivityIndicator(this, wxID_ANY, wxDefaultPosition, wxSize(iconSz,iconSz));
 
-    Bind(wxEVT_SIZE, [this, &vcashApp, toolsImg, settingsImg](wxSizeEvent &event) {
+    Bind(wxEVT_SIZE, [this, &vcashApp, toolsImg, settingsImg](wxSizeEvent &ev) {
 
         View &view = vcashApp.view;
 
@@ -90,7 +95,7 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
         Local::move(*this, Locked, *statusBarWallet);
         Local::move(*this, Locked, *activityIndicator);
 
-        event.Skip();
+        ev.Skip();
     });
 };
 

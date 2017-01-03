@@ -56,12 +56,6 @@ MainFrame::MainFrame(VcashApp &vcashApp)
 
     SetSizerAndFit(sizerV);
 
-    Bind(wxEVT_ACTIVATE, [this, toolsFrame](wxActivateEvent &ev) {
-        if(ev.GetActive()) {
-            toolsFrame->Show(false);
-        }
-    });
-
     Bind(wxEVT_ONSTATUS, [&vcashApp](OnStatusEvent &ev) {
         vcashApp.controller.onStatus(ev.GetPairs());
     });
@@ -79,7 +73,7 @@ MainFrame::MainFrame(VcashApp &vcashApp)
             wxRect rect;
             vcashApp.view.statusBar->GetFieldRect(StatusBar::Tools, rect);
             toolsFrame->Move(vcashApp.view.statusBar->ClientToScreen(
-                    wxPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)));
+                    wxPoint(rect.x + rect.width / 2, rect.y + rect.height)));
         }
     };
 

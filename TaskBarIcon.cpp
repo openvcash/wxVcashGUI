@@ -29,8 +29,8 @@ TaskBarIcon::TaskBarIcon(VcashApp &vcashApp) : wxTaskBarIcon() {
             vcashApp.view.mainFrame->restoreFromTray();
     });
 
-    Bind(wxEVT_TASKBAR_RIGHT_DOWN, [this, &vcashApp] (wxTaskBarIconEvent &ev) {
-        new ContextMenu(vcashApp, *vcashApp.view.mainFrame);
+    Bind(wxEVT_TASKBAR_RIGHT_DOWN, [&vcashApp] (wxTaskBarIconEvent &ev) {
+        vcashApp.view.showContextMenu(vcashApp);
     });
 }
 

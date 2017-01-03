@@ -109,6 +109,27 @@ bool VcashApp::OnInit() {
     if(taskBarIconEnabled)
         view.taskBarIcon = new TaskBarIcon(*this);
 
+    // Set global keys accelerators
+    #define CTRL_T      (wxID_HIGHEST + 1)
+    #define CTRL_M      (wxID_HIGHEST + 2)
+    #define NUM_ACCELS  2
+
+    wxAcceleratorEntry entries[NUM_ACCELS];
+    entries[0].Set(wxACCEL_CTRL, 't', CTRL_T);
+    entries[1].Set(wxACCEL_CTRL, 'm', CTRL_M);
+
+    wxAcceleratorTable accel(NUM_ACCELS, entries);
+    view.mainFrame->SetAcceleratorTable(accel);
+    view.toolsFrame->SetAcceleratorTable(accel);
+
+    Bind(wxEVT_MENU, [this](wxCommandEvent &ev) {
+        view.showHideToolsFrame();
+    }, CTRL_T);
+
+    Bind(wxEVT_MENU, [this](wxCommandEvent &ev) {
+        view.showContextMenu(*this, false);
+    }, CTRL_M);
+
     return controller.onInit(args);
 }
 
