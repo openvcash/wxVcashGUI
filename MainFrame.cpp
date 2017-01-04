@@ -68,22 +68,13 @@ MainFrame::MainFrame(VcashApp &vcashApp)
         vcashApp.controller.onAlert(ev.GetPairs());
     });
 
-    auto moveToolsFrame = [this, &vcashApp, toolsFrame]() {
-        if(this->IsShown()) {
-            wxRect rect;
-            vcashApp.view.statusBar->GetFieldRect(StatusBar::Tools, rect);
-            toolsFrame->Move(vcashApp.view.statusBar->ClientToScreen(
-                    wxPoint(rect.x + rect.width / 2, rect.y + rect.height)));
-        }
-    };
-
-    Bind(wxEVT_MOVE, [moveToolsFrame](wxMoveEvent &ev) {
-        moveToolsFrame();
+    Bind(wxEVT_MOVE, [toolsFrame](wxMoveEvent &ev) {
+        toolsFrame->updatePosition();
         ev.Skip();
     });
 
-    Bind(wxEVT_SIZE, [moveToolsFrame](wxSizeEvent &ev) {
-        moveToolsFrame();
+    Bind(wxEVT_SIZE, [toolsFrame](wxSizeEvent &ev) {
+        toolsFrame->updatePosition();
         ev.Skip();
     });
 
@@ -103,9 +94,14 @@ MainFrame::MainFrame(VcashApp &vcashApp)
        else
            Destroy();
     });
+
+    Bind(wxEVT_SET_FOCUS, [mainPanel](wxFocusEvent &ev) {
+        mainPanel->SetFocus();
+    });
 };
 
 void MainFrame::minimizeToTray() {
+    vcashApp.view.toolsFrame->Iconize(true);
     vcashApp.view.toolsFrame->Hide();
     vcashApp.view.mainFrame->Iconize(true);
     vcashApp.view.mainFrame->Hide();

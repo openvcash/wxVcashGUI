@@ -162,68 +162,87 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
         }
     });
 
-    listCtrl->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, [this, &vcashApp](wxListEvent &event) {
-        long index = event.GetIndex();
+    auto openMenu = [this, &vcashApp](long index, wxPoint pos) {
+        std::string txid = *((std::string *) listCtrl->GetItemData(index));
+        enum PopupMenu {
+            BlockExperts, VcashExplorer, Copy, Info, Lock, QR
+        };
 
-        std::cout << index << std::endl;
-        if (index >= 0) {
-            std::string txid = *((std::string *) listCtrl->GetItemData(index));
+        wxMenu *explorers = new wxMenu();;
+        explorers->Append(BlockExperts, wxT("Block Experts"));
+        explorers->Append(VcashExplorer, wxT("Vcash Explorer"));
 
-            enum PopupMenu {
-                BlockExperts, VcashExplorer, Copy, Info, Lock, QR
-            };
+        wxMenu popupMenu;
+        popupMenu.AppendSubMenu(explorers, wxT("&Block explorer"));
+        popupMenu.Append(Copy, wxT("&Copy"));
+        popupMenu.Append(Info, wxT("&Information"));
+        popupMenu.Append(Lock, wxT("&Lock"));
+        popupMenu.Append(QR, wxT("&QR"));
 
-            wxMenu *explorers = new wxMenu();;
-            explorers->Append(BlockExperts, wxT("Block Experts"));
-            explorers->Append(VcashExplorer, wxT("Vcash Explorer"));
+        popupMenu.Enable(Lock, vcashApp.controller.canZerotimeLock(txid));
 
-            wxMenu popupMenu;
-            popupMenu.AppendSubMenu(explorers, wxT("&Block explorer"));
-            popupMenu.Append(Copy, wxT("&Copy"));
-            popupMenu.Append(Info, wxT("&Information"));
-            popupMenu.Append(Lock, wxT("&Lock"));
-            popupMenu.Append(QR, wxT("&QR"));
-
-            popupMenu.Enable(Lock, vcashApp.controller.canZerotimeLock(txid));
-
-            auto select = GetPopupMenuSelectionFromUser(popupMenu);
-            switch (select) {
-                case BlockExperts: {
-                    wxLaunchDefaultBrowser(BlockExperts::transactionURL(txid));
-                    break;
-                }
-                case VcashExplorer: {
-                    wxLaunchDefaultBrowser(VcashExplorer::transactionURL(txid));
-                    break;
-                }
-                case Copy: {
-                    if (wxTheClipboard->Open()) {
-                        // wxTheClipboard->Clear(); doesn't work on Windows
-                        wxTheClipboard->SetData(new wxTextDataObject(txid));
-                        // wxTheClipboard->Flush();
-                        wxTheClipboard->Close();
-                    }
-                    break;
-                }
-                case Info: {
-                    std::string cmd = "gettransaction " + txid;
-                    vcashApp.controller.onConsoleCommandEntered(cmd);
-                    break;
-                }
-                case Lock: {
-                    vcashApp.controller.onZerotimeLockTransaction(txid);
-                    break;
-                }
-                case QR: {
-                    new QRDialog(*this, wxT("QR transaction"), wxString(txid));
-                    break;
-                }
-                default: {
-                    break;
-                };
+        auto select = GetPopupMenuSelectionFromUser(popupMenu, pos);
+        switch (select) {
+            case BlockExperts: {
+                wxLaunchDefaultBrowser(BlockExperts::transactionURL(txid));
+                break;
             }
+            case VcashExplorer: {
+                wxLaunchDefaultBrowser(VcashExplorer::transactionURL(txid));
+                break;
+            }
+            case Copy: {
+                if (wxTheClipboard->Open()) {
+                    // wxTheClipboard->Clear(); doesn't work on Windows
+                    wxTheClipboard->SetData(new wxTextDataObject(txid));
+                    // wxTheClipboard->Flush();
+                    wxTheClipboard->Close();
+                }
+                break;
+            }
+            case Info: {
+                std::string cmd = "gettransaction " + txid;
+                vcashApp.controller.onConsoleCommandEntered(cmd);
+                break;
+            }
+            case Lock: {
+                vcashApp.controller.onZerotimeLockTransaction(txid);
+                break;
+            }
+            case QR: {
+                new QRDialog(*this, wxT("QR transaction"), wxString(txid));
+                break;
+            }
+            default: {
+                break;
+            };
         }
-        event.Skip();
+    };
+
+    listCtrl->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, [this, openMenu](wxListEvent &ev) {
+        long index = ev.GetIndex();
+
+        if (index >= 0) {
+            openMenu(index, wxDefaultPosition);
+        }
+        ev.Skip();
+    });
+
+    listCtrl->Bind(wxEVT_CHAR, [this, openMenu](wxKeyEvent &ev) {
+       if(ev.GetKeyCode() == WXK_RETURN && listCtrl->GetSelectedItemCount() > 0) {
+
+           long index = listCtrl->GetNextItem(-1,
+                                        wxLIST_NEXT_ALL,
+                                        wxLIST_STATE_SELECTED);
+           if(index >= 0) {
+               wxPoint pos;
+               listCtrl->GetItemPosition(index, pos);
+               pos.x += 50;
+               pos.y += 50;
+               openMenu(index, pos);
+           }
+       }
+       ev.Skip();
     });
 }
 

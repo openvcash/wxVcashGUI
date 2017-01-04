@@ -81,9 +81,9 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
 
     SetSizerAndFit(pageSizer);
 
-    listCtrl->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, [this, &vcashApp](wxListEvent &ev) {
-        long index = ev.GetIndex();
+    auto openMenu = [this, &vcashApp](long index, wxPoint pos) {
         bool onAddress = index >= 0;
+        std::string address = onAddress ? listCtrl->GetItemText(index, Address).ToStdString() : "";
 
         enum PopupMenu {
             Copy, BlockExperts, VcashExplorer, New, QR
@@ -105,34 +105,24 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
         popupMenu.Append(QR, wxT("&QR Code"));
         popupMenu.Enable(QR, onAddress);
 
-        auto select = GetPopupMenuSelectionFromUser(popupMenu);
+        auto select = GetPopupMenuSelectionFromUser(popupMenu, pos);
 
         switch (select) {
             case Copy: {
-                if (index >= 0) {
-                    wxString address = listCtrl->GetItemText(index, Address);
-
-                    if (wxTheClipboard->Open()) {
-                        // wxTheClipboard->Clear(); doesn't work on Windows
-                        wxTheClipboard->SetData(new wxTextDataObject(address));
-                        // wxTheClipboard->Flush();
-                        wxTheClipboard->Close();
-                    }
+                if (wxTheClipboard->Open()) {
+                    // wxTheClipboard->Clear(); doesn't work on Windows
+                    wxTheClipboard->SetData(new wxTextDataObject(address));
+                    // wxTheClipboard->Flush();
+                    wxTheClipboard->Close();
                 }
                 break;
             }
             case BlockExperts: {
-                if (index >= 0) {
-                    std::string address = listCtrl->GetItemText(index, Address).ToStdString();
-                    wxLaunchDefaultBrowser(BlockExperts::addressURL(address));
-                }
+                wxLaunchDefaultBrowser(BlockExperts::addressURL(address));
                 break;
             }
             case VcashExplorer: {
-                if (index >= 0) {
-                    std::string address = listCtrl->GetItemText(index, Address).ToStdString();
-                    wxLaunchDefaultBrowser(VcashExplorer::addressURL(address));
-                }
+                wxLaunchDefaultBrowser(VcashExplorer::addressURL(address));
                 break;
             }
             case New: {
@@ -141,13 +131,32 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
                 break;
             }
             case QR:
-                if (index >= 0) {
-                    wxString address = listCtrl->GetItemText(index, Address);
-                    new QRDialog(*this, wxT("QR Address"), address);
-                }
+                new QRDialog(*this, wxT("QR Address"), address);
                 break;
             default:
                 break;
+        }
+    };
+
+    listCtrl->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, [openMenu](wxListEvent &ev) {
+        long index = ev.GetIndex();
+        openMenu(index, wxDefaultPosition);
+        ev.Skip();
+    });
+
+    listCtrl->Bind(wxEVT_CHAR, [this, openMenu](wxKeyEvent &ev) {
+        if(ev.GetKeyCode() == WXK_RETURN && listCtrl->GetSelectedItemCount() > 0) {
+
+            long index = listCtrl->GetNextItem(-1,
+                                               wxLIST_NEXT_ALL,
+                                               wxLIST_STATE_SELECTED);
+            if(index >= 0) {
+                wxPoint pos;
+                listCtrl->GetItemPosition(index, pos);
+                pos.x += 50;
+                pos.y += 50;
+                openMenu(index, pos);
+            }
         }
         ev.Skip();
     });
