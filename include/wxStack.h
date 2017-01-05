@@ -38,8 +38,9 @@ namespace wxGUI {
 
         static const std::int64_t oneVcash;
         static const std::int64_t maxMoneySupply;
-        static const std::int32_t transactionConfirmations;
+        static const std::int32_t updateTransactionMaxConfirmations;
         static const std::int32_t coinbaseMaturity;
+        static const std::int32_t minConfirmations;
     private:
         View &view;
     };

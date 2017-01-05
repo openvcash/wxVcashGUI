@@ -492,12 +492,8 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
                 bool isCoinBase = coinBase == "1";
                 bool isCoinStake = coinStake == "1";
                 bool isOutgoing;
-
-                bool done = (confirms>0);
-
+                bool isConfirmed = (confirms>=stack.minConfirmations);
                 std::string amount;
-
-                bool isZeroTime = done && !isOnChain;
                 std::string txMsg;
 
                 if (isCoinBase) {
@@ -524,24 +520,34 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
                     amount = net;
                     isOutgoing = !amount.empty() && amount[0] == '-';
 
-                    txMsg = done ? (isOutgoing ? "Sent" : "Received")
-                                 : (isOutgoing ? "Sending (0/1)" : "Receiving (0/1)");
+                    std::int32_t currentConfs = std::max(0, confirms); // confirms can be -1
 
-                    // toDo stack.transactionConfirmations corresponds to coin::transaction::confirmations.
+                    if(isConfirmed) {
+                        txMsg = isOutgoing ? "Sent" : "Received";
+                    } else {
+                        std::int32_t currentConfs = std::max(0, confirms); // confirms can be -1
+                        txMsg = (isOutgoing ? "Sending" : "Receiving");
+                        txMsg += " (" + std::to_string(currentConfs) + "/" + std::to_string(stack.minConfirmations) + ")";
+                    }
+
+                    // toDo stack.updateTransactionMaxConfirmations corresponds to coin::transaction::confirmations.
                     // In any case, if wallet is shut down before this number of confirmations
                     // has been reached, next time we restart the wallet, the number of
                     // confirmations won't get properly updated :(
                     // line 4926 of stack_impl.cpp must be modified accordingly to fix this issue.
+
+                    bool isZeroTime = isConfirmed && !isOnChain;
+
                     if(isZeroTime)
                         txMsg += " (ZT)"; // is confirmed but off chain (ZeroTime)
-                    else if(confirms > 0 && confirms < (stack.transactionConfirmations + 1))
+                    else if(confirms > 0 && confirms < (stack.updateTransactionMaxConfirmations + 1))
                         txMsg += " ("+std::to_string(confirms)+")";
                 }
 
                 std::time_t txTime = (std::time_t) atoll(time.c_str());
 
                 view.addTransaction(hash, txTime, txMsg, formated(amount));
-                view.setColour(hash, (isOutgoing && (isNew || confirms<0)) ? BulletColor::Red : (done ? BulletColor::Green : BulletColor::Yellow));
+                view.setColour(hash, (isOutgoing && (isNew || confirms<0)) ? BulletColor::Red : (isConfirmed ? BulletColor::Green : BulletColor::Yellow));
 
                 if (!isOutgoing && isNew)
                     view.notificationBox("Amount: " + formated(net), "Incoming Vcash transaction");
