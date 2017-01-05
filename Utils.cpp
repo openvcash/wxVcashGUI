@@ -17,8 +17,12 @@
 
 using namespace wxGUI;
 
+std::int64_t Utils::stringToJohnoshis(const std::string &amount) {
+    return std::stoll(amount, nullptr);
+}
+
 std::int64_t Utils::toJohnoshis(double amount) {
-    return static_cast<std::int64_t >(amount*wxStack::oneVcash);
+    return static_cast<std::int64_t>(amount*wxStack::oneVcash);
 }
 
 std::int64_t Utils::toJohnoshis(const std::string &amount) {
@@ -30,7 +34,7 @@ double Utils::fromJohnoshis(std::int64_t amount) {
 }
 
 double Utils::fromJohnoshis(std::string &amount) {
-    return fromJohnoshis(std::stol(amount, nullptr));
+    return fromJohnoshis(stringToJohnoshis(amount));
 }
 
 std::string Utils::formatted(double amount, int decimals) {

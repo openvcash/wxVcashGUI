@@ -363,8 +363,6 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
             std::string coinBase = Utils::find("wallet.transaction.coin_base", pairs);
             std::string coinStake = Utils::find("wallet.transaction.coin_stake", pairs);
             std::string valueOut = Utils::find("wallet.transaction.value_out", pairs);
-            bool isCoinBase = coinBase == "1";
-            bool isCoinStake = coinStake == "1";
 
             /*************************************************************************
              * A ZeroTime incoming transaction goes through following states:
@@ -488,47 +486,61 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
              */
 
             if(!confirmations.empty() && !confirmed.empty() && !hash.empty() && !net.empty() && !time.empty() && !mainChain.empty()) {
-                bool isConfirmed = confirmed == "1";
-                int confirms = std::stoi(confirmations);
-                bool isOutgoing = !net.empty() && net[0] == '-';
+                std::int32_t confirms = std::stoi(confirmations);
                 bool isOnChain = mainChain == "1";
                 bool isNew = value == "new";
+                bool isCoinBase = coinBase == "1";
+                bool isCoinStake = coinStake == "1";
+                bool isOutgoing;
 
                 bool done = (confirms>0);
+
+                std::string amount;
 
                 bool isZeroTime = done && !isOnChain;
                 std::string txMsg;
 
                 if (isCoinBase) {
+                    amount = credit;
+                    isOutgoing = false;
+
                     if(isOnChain)
                         txMsg = "Reward";
                     else
                         txMsg = "Reward (Unaccepted)";
-
                 } else if(isCoinStake) {
+                    if(confirms < (stack.coinbaseMaturity + 20)) {
+                        std::int64_t amountN = Utils::stringToJohnoshis(valueOut) - Utils::stringToJohnoshis(debit);
+                        amount = std::to_string(amountN);
+                    } else
+                        amount = net;
+                    isOutgoing = false;
+
                     if(isOnChain)
                         txMsg = "Interest";
                     else
                         txMsg = "Interest (Unaccepted)";
-
                 } else {
+                    amount = net;
+                    isOutgoing = !amount.empty() && amount[0] == '-';
+
                     txMsg = done ? (isOutgoing ? "Sent" : "Received")
                                  : (isOutgoing ? "Sending (0/1)" : "Receiving (0/1)");
 
-                    // toDo constant 4 corresponds to coin::transaction::confirmations + 1
+                    // toDo stack.transactionConfirmations corresponds to coin::transaction::confirmations.
                     // In any case, if wallet is shut down before this number of confirmations
                     // has been reached, next time we restart the wallet, the number of
                     // confirmations won't get properly updated :(
                     // line 4926 of stack_impl.cpp must be modified accordingly to fix this issue.
                     if(isZeroTime)
                         txMsg += " (ZT)"; // is confirmed but off chain (ZeroTime)
-                    else if(confirms > 0 && confirms < 4)
+                    else if(confirms > 0 && confirms < (stack.transactionConfirmations + 1))
                         txMsg += " ("+std::to_string(confirms)+")";
                 }
 
                 std::time_t txTime = (std::time_t) atoll(time.c_str());
 
-                view.addTransaction(hash, txTime, txMsg, formated(net));
+                view.addTransaction(hash, txTime, txMsg, formated(amount));
                 view.setColour(hash, (isOutgoing && (isNew || confirms<0)) ? BulletColor::Red : (done ? BulletColor::Green : BulletColor::Yellow));
 
                 if (!isOutgoing && isNew)

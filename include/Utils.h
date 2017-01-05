@@ -19,6 +19,8 @@
 namespace wxGUI {
     class Utils {
     public:
+        static std::int64_t stringToJohnoshis(const std::string &amount);
+
         static std::int64_t toJohnoshis(double amount);
 
         static std::int64_t toJohnoshis(const std::string &amount);

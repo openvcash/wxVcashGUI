@@ -91,6 +91,10 @@ const std::int64_t wxStack::oneVcash = coin::constants::coin;
 
 const std::int64_t wxStack::maxMoneySupply = coin::constants::max_money_supply;
 
+const std::int32_t wxStack::transactionConfirmations = coin::transaction::confirmations;
+
+const std::int32_t wxStack::coinbaseMaturity = coin::constants::coinbase_maturity;
+
 bool wxStack::validateHDSeed(std::string &seed) {
     coin::key key;
     coin::key::secret_t secret;
