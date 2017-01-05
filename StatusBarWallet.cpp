@@ -69,10 +69,15 @@ void StatusBarWallet::setWalletStatus(WalletStatus st) {
     switch (walletStatus) {
         case WalletStatus::Locked:
             SetBitmap(bitmapLocked);
+            SetToolTip(wxT("Click to unlock your wallet"));
             break;
         case WalletStatus::Unlocked:
+            SetBitmap(bitmapUnlocked);
+            SetToolTip(wxT("Click to lock your wallet"));
+            break;
         case WalletStatus::Unencrypted:
             SetBitmap(bitmapUnlocked);
+            SetToolTip(wxT("Click to encrypt your wallet"));
             break;
         case WalletStatus::Unknown:
             SetBitmap(bitmapUnknown);

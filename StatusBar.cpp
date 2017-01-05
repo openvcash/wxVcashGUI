@@ -59,6 +59,9 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
     statusBarWallet = new StatusBarWallet(vcashApp, *this);
     vcashApp.view.walletLock = statusBarWallet;
 
+    toolsImg->SetToolTip(wxT("Click to open/close tools window"));
+    settingsImg->SetToolTip(wxT("Click to open menu"));
+
     double iconSz = wxMax(toolsImg->GetBestSize().GetHeight(),
                           vcashApp.view.walletLock->GetBestSize().GetHeight());
     SetMinHeight(iconSz);
@@ -68,7 +71,6 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
     activityIndicator = new wxActivityIndicator(this, wxID_ANY, wxDefaultPosition, wxSize(iconSz,iconSz));
 
     Bind(wxEVT_SIZE, [this, &vcashApp, toolsImg, settingsImg](wxSizeEvent &ev) {
-
         View &view = vcashApp.view;
 
 #if defined(__WXGTK__)
