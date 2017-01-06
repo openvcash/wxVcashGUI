@@ -520,8 +520,6 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
                     amount = net;
                     isOutgoing = !amount.empty() && amount[0] == '-';
 
-                    std::int32_t currentConfs = std::max(0, confirms); // confirms can be -1
-
                     if(isConfirmed) {
                         txMsg = isOutgoing ? "Sent" : "Received";
                     } else {
