@@ -14,15 +14,16 @@
 
 #ifndef WX_PRECOMP
 #include <wx/button.h>
-#include <Resources.h>
 #endif
 
+#include <Resources.h>
 #include "ShowInfoDialog.h"
 
 using namespace wxGUI;
 
-ShowInfoDialog::ShowInfoDialog(wxWindow &parent, const wxString &title, std::function<wxSizer *(void)> contents)
-        : wxDialog(&parent, wxID_ANY,  title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE) {
+ShowInfoDialog::ShowInfoDialog(wxWindow &parent, const wxString &title, std::function<wxSizer *(void)> contents, int timeout)
+        : closeTimer(this)
+        , wxDialog(&parent, wxID_ANY,  title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE) {
 
     wxButton *closeBt = new wxButton(this, wxID_CLOSE, wxT("Close"));
 
@@ -41,6 +42,10 @@ ShowInfoDialog::ShowInfoDialog(wxWindow &parent, const wxString &title, std::fun
     closeBt->SetFocus();
 
     SetIcon(Resources::vcashIcon);
+
+    if(timeout>=0)
+        closeTimer.StartOnce(timeout);
+
     ShowModal();
     Destroy();
 }

@@ -18,6 +18,7 @@
 #ifndef WX_PRECOMP
 #include <wx/dialog.h>
 #include <wx/sizer.h>
+#include <wx/timer.h>
 #include <wx/window.h>
 #endif
 
@@ -26,7 +27,19 @@
 namespace wxGUI {
     class ShowInfoDialog : public wxDialog {
     public:
-        ShowInfoDialog(wxWindow &parent, const wxString &title, std::function<wxSizer *(void)> contents);
+        ShowInfoDialog(wxWindow &parent, const wxString &title, std::function<wxSizer *(void)> contents, int timeout = -1);
+    private:
+        class CloseTimer : public wxTimer {
+        private:
+            ShowInfoDialog *dlg;
+        public:
+            CloseTimer(ShowInfoDialog *dlg) : dlg(dlg), wxTimer() { }
+            void Notify() {
+                dlg->EndModal(wxID_CLOSE);
+            }
+        };
+
+        CloseTimer closeTimer;
     };
 }
 
