@@ -18,6 +18,7 @@
 #ifndef WX_PRECOMP
 #include <wx/app.h>
 #include <wx/cmdline.h>
+#include <wx/snglinst.h>
 #endif
 
 #include "Controller.h"
@@ -44,6 +45,7 @@ namespace wxGUI {
         bool OnCmdLineParsed(wxCmdLineParser &parser);
         std::map<std::string, std::string> args;
         static const wxCmdLineEntryDesc cmdLineDesc[];
+        wxSingleInstanceChecker singleInstanceChecker;
     };
 }
 

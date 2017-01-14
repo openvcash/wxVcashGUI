@@ -81,6 +81,9 @@ bool VcashApp::OnCmdLineParsed(wxCmdLineParser& parser) {
 }
 
 bool VcashApp::OnInit() {
+      if(singleInstanceChecker.IsAnotherRunning()) 
+        return false;
+    
     if (!wxApp::OnInit())
         return false;
 
