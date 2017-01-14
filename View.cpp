@@ -183,10 +183,11 @@ void View::showHideToolsFrame(bool showAlso) {
     if(toolsFrame->IsShown())
         toolsFrame->Hide();
     else if (showAlso) {
+        toolsFrame->updatePosition();
         toolsFrame->Iconize(false); // restore the window if minimized
         toolsFrame->Restore();      // restore the window if minimized
         toolsFrame->Show();
-        toolsFrame->updatePosition();
+        // toolsFrame->updatePosition();
         toolsFrame->SetFocus();
     }
 }
