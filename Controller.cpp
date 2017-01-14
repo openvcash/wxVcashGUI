@@ -363,6 +363,8 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
             std::string coinBase = Utils::find("wallet.transaction.coin_base", pairs);
             std::string coinStake = Utils::find("wallet.transaction.coin_stake", pairs);
             std::string valueOut = Utils::find("wallet.transaction.value_out", pairs);
+            std::string blended = Utils::find("blended", pairs);
+            std::string denominated = Utils::find("denominated", pairs);
 
             /*************************************************************************
              * A ZeroTime incoming transaction goes through following states:
@@ -491,12 +493,35 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
                 bool isNew = value == "new";
                 bool isCoinBase = coinBase == "1";
                 bool isCoinStake = coinStake == "1";
+                bool isBlended = blended == "1";
+                bool isDenominated = denominated == "1";
                 bool isOutgoing;
                 bool isConfirmed = (confirms>=stack.minConfirmations);
                 std::string amount;
                 std::string txMsg;
 
-                if (isCoinBase) {
+                auto txtConfs = [confirms, this]() {
+                    std::int32_t currentConfs = std::max(0, confirms); // confirms can be -1
+                    return " (" + std::to_string(currentConfs) + "/" + std::to_string(stack.minConfirmations) + ")";
+                };
+
+                if(isBlended) {
+                    amount = net;
+                    isOutgoing = true;
+
+                    if(isOnChain)
+                        txMsg = "Blended";
+                    else
+                        txMsg = "Blending" + txtConfs();
+                } else if(isDenominated) {
+                    amount = net;
+                    isOutgoing = true;
+
+                    if(isOnChain)
+                        txMsg = "Denominated";
+                    else
+                        txMsg = "Denominating" + txtConfs();
+                } else if(isCoinBase) {
                     amount = credit;
                     isOutgoing = false;
 
@@ -520,13 +545,10 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
                     amount = net;
                     isOutgoing = !amount.empty() && amount[0] == '-';
 
-                    if(isConfirmed) {
+                    if(isConfirmed)
                         txMsg = isOutgoing ? "Sent" : "Received";
-                    } else {
-                        std::int32_t currentConfs = std::max(0, confirms); // confirms can be -1
-                        txMsg = (isOutgoing ? "Sending" : "Receiving");
-                        txMsg += " (" + std::to_string(currentConfs) + "/" + std::to_string(stack.minConfirmations) + ")";
-                    }
+                    else
+                        txMsg = (isOutgoing ? "Sending" : "Receiving") + txtConfs();
 
                     // toDo stack.updateTransactionMaxConfirmations corresponds to coin::transaction::confirmations.
                     // In any case, if wallet is shut down before this number of confirmations
@@ -548,7 +570,7 @@ void Controller::onStatus(const std::map<std::string, std::string> &pairs) {
                 view.setColour(hash, (isOutgoing && (isNew || confirms<0)) ? BulletColor::Red : (isConfirmed ? BulletColor::Green : BulletColor::Yellow));
 
                 if (!isOutgoing && isNew)
-                    view.notificationBox("Amount: " + formated(net), "Incoming Vcash transaction");
+                    view.notificationBox("Amount: " + formated(amount), "Incoming Vcash transaction");
                 goto end;
             }
         }
