@@ -437,6 +437,8 @@ $(OBJS)\Vcash.exe: $(VCASH_OBJECTS) $(OBJS)\vcash.res
 	link /NOLOGO /LTCG /OUT:$@  $(__DEBUGINFO_1) /pdb:"$(OBJS)\Vcash.pdb" $(__DEBUGINFO_2)  $(LINK_TARGET_CPU) /LIBPATH:$(LIBDIRNAME) /SUBSYSTEM:WINDOWS $(____CAIRO_LIBDIR_FILENAMES_p) $(LDFLAGS) @<<
 	$(VCASH_OBJECTS) $(VCASH_RESOURCES) $(VCASH_LIBS_DEPS) $(VCASHGUI_LIBS_DEPS) $(VCASH_LIBS_WX)
 <<
+	mt.exe /manifest $(OBJS)\Vcash.exe.manifest -outputresource:$(OBJS)\Vcash.exe;1
+
 
 
 
