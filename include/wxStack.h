@@ -30,7 +30,8 @@ namespace wxGUI {
         static std::string getVersion();
         static bool lockWallet();
         static bool unlockWallet(const std::string &password);
-        static bool validateHDSeed(std::string &seed);
+        static bool validateHDSeed(const std::string &seed);
+        static bool validateAddress(const std::string &address);
 
         void on_error(const std::map<std::string, std::string> &pairs) override;
         void on_status(const std::map<std::string, std::string> &pairs) override;

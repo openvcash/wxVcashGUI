@@ -16,6 +16,7 @@
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
+#include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/window.h>
 #endif
@@ -24,9 +25,14 @@ namespace wxGUI {
 
     class VcashApp;
 
+    enum class Page { Account, Transfer, History };
+
     class MainPanel : public wxPanel {
+    private:
+        wxNotebook *notebook;
     public:
         MainPanel(VcashApp &vcashApp, wxWindow &parent);
+        void showPage(Page page);
     };
 }
 

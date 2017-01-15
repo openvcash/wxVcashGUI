@@ -16,6 +16,7 @@
 #include "View.h"
 #include "wxStack.h"
 
+#include "coin/address.hpp"
 #include "coin/constants.hpp"
 #include "coin/globals.hpp"
 #include "coin/key.hpp"
@@ -99,7 +100,7 @@ const std::int32_t wxStack::coinbaseMaturity =
 
 const std::int32_t wxStack::minConfirmations = coin::transaction_wallet::confirmations;
 
-bool wxStack::validateHDSeed(std::string &seed) {
+bool wxStack::validateHDSeed(const std::string &seed) {
     coin::key key;
     coin::key::secret_t secret;
 
@@ -116,4 +117,9 @@ bool wxStack::validateHDSeed(std::string &seed) {
     }
     return true;
 }
- 
+
+bool wxStack::validateAddress(const std::string &address) {
+    coin::address addr(address);
+    return addr.is_valid();
+}
+

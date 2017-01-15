@@ -10,8 +10,18 @@
  *
  ******************************************************************************/
 
+#include <wx/wxprec.h>
+
+#ifndef WX_PRECOMP
+#include <wx/artprov.h>
+#include <wx/statbmp.h>
+#include <wx/stdpaths.h>
+#endif
+
 #include "MainFrame.h"
+#include "MainPanel.h"
 #include "Resources.h"
+#include "ShowInfoDialog.h"
 #include "TaskBarIcon.h"
 #include "ToolsFrame.h"
 #include "Utils.h"
@@ -25,7 +35,39 @@ IMPLEMENT_APP(wxGUI::VcashApp)
 
 using namespace wxGUI;
 
-VcashApp::VcashApp() : view(), controller(view) {
+// DDE Messages
+
+#define DDE_SERVER_NAME     (wxT("vcash_dde_socket"))
+#define DDE_TOPIC           (wxT("dde_topic"))
+#define DDE_SEPARATOR      "*"
+#define DDE_RAISE           "raise"
+#define DDE_URL            "url"
+
+VcashApp::DDEConnection::DDEConnection(VcashApp &vcashApp) : vcashApp(vcashApp) { }
+
+bool VcashApp::DDEConnection::OnExec(const wxString& topic, const wxString& data) {
+    std::string toParse = data.ToStdString();
+
+    if(topic==DDE_TOPIC) {
+        std::string msg = Utils::extractToken(toParse, DDE_SEPARATOR);
+
+        if(msg==DDE_RAISE) {
+            vcashApp.view.mainFrame->restoreFromTray();
+        } else if(msg==DDE_URL) {
+            vcashApp.parserURI(toParse);
+        }
+    }
+    return true;
+}
+
+VcashApp::DDEServer::DDEServer(VcashApp &vcashApp) : vcashApp(vcashApp) { }
+
+VcashApp::DDEConnection* VcashApp::DDEServer::OnAcceptConnection(const wxString &topic) {
+    return new DDEConnection(vcashApp);
+}
+
+
+VcashApp::VcashApp() : view(), controller(view), ddeServer(*this) {
 #ifdef __WXGTK__
     // This App uses multiple threads.
     // Must be called here in the constructor of the GUI App
@@ -45,6 +87,8 @@ const wxCmdLineEntryDesc VcashApp::cmdLineDesc[] =  {
     { wxCMD_LINE_OPTION, "ws", "wallet-seed", "restores wallet from hierarchical deterministic seed",
             wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL  },
     { wxCMD_LINE_OPTION, "m", "mode", "use spv for light client (currenty unsupported)",
+            wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL  },
+    { wxCMD_LINE_OPTION, "url", "url", "pass a vcash url to wallet. Syntax is \"vcash:<address>?amount=<amount>\"",
             wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL  },
     { wxCMD_LINE_NONE }
 };
@@ -74,25 +118,142 @@ bool VcashApp::OnCmdLineParsed(wxCmdLineParser& parser) {
                 args["wallet-seed"] = value.ToStdString();
             if(parser.Found("m", &value))
                 args["mode"] = value.ToStdString();
+            if(parser.Found("url", &value))
+                args[DDE_URL] = value.ToStdString();
         }
         return true;
     } else
         return false;
 }
 
+#define TK_AMOUNT           "amount"
+#define TK_ZEROTIME         "zerotime"
+#define TK_CHAINBLENDER     "chainblender"
+#define TK_ON               "on"
+#define TK_OFF              "off"
+#define TK_TRUE             "true"
+#define TK_FALSE            "false"
+
+#define QUERY_DELIMITERS            "&;"
+#define QUERY_BEGIN                 "?"
+#define QUERY_ATTR_VALUE_DELIMITER  "="
+
+void VcashApp::parserURI(std::string uri) {
+    bool schemeFound = false;
+    std::vector<std::string> schemes = { "vcash://", "vcash:" };
+    for(auto const& scheme : schemes)
+        if(Utils::isPrefix(scheme, uri)) {
+            uri = uri.erase(0, scheme.length());
+            schemeFound = true;
+            break;
+        }
+    if(!schemeFound)
+        return;
+
+    std::string address = Utils::extractToken(uri, QUERY_BEGIN);
+    if(address.empty())
+        return;
+
+    std::map<std::string, std::string> mapAttrValues;
+    std::vector<std::string> booleanAttributes = { TK_ZEROTIME, TK_CHAINBLENDER };
+    std::vector<std::string> attributes = { TK_AMOUNT };
+
+    while(!uri.empty()) {
+        std::string attrValue = Utils::extractToken(uri, QUERY_DELIMITERS);
+        std::string attr = Utils::extractToken(attrValue, QUERY_ATTR_VALUE_DELIMITER);
+        std::string value = attrValue;
+
+        if(std::find(booleanAttributes.begin(), booleanAttributes.end(), attr) != booleanAttributes.end()) {
+            if(value==TK_ON || value==TK_TRUE)
+                mapAttrValues[attr] = TK_TRUE;
+            else if(value==TK_OFF || value==TK_FALSE)
+                mapAttrValues[attr] = TK_FALSE;
+            else
+                return;
+        } else if (std::find(attributes.begin(), attributes.end(), attr) != attributes.end()) {
+            mapAttrValues[attr] = value;
+        } else
+            return;
+    }
+
+    view.setDestinationAddress(address);
+
+    std::string amount = Utils::find(TK_AMOUNT, mapAttrValues);
+    if(!amount.empty())
+        view.setAmount(amount);
+
+    std::string zerotime = Utils::find(TK_ZEROTIME, mapAttrValues);
+    if(zerotime==TK_TRUE)
+        view.setZerotime(true);
+    else if(zerotime==TK_FALSE)
+        view.setZerotime(false);
+
+    std::string chainblender = Utils::find(TK_CHAINBLENDER, mapAttrValues);
+    if(chainblender==TK_TRUE)
+        view.setChainblender(true);
+    else if(chainblender==TK_FALSE)
+        view.setChainblender(false);
+
+    view.showPage(Page::Transfer);
+
+    class InfoDlg : public ShowInfoDialog {
+    public:
+        InfoDlg(VcashApp &vcashApp, wxWindow &parent, const std::string &address, const std::string &amount)
+                : ShowInfoDialog(parent, wxT("Vcash"), [this, address, amount]() {
+            wxStaticBitmap *bm = new wxStaticBitmap(this, wxID_ANY, wxArtProvider::GetBitmap(wxART_WARNING,  wxART_OTHER, wxSize(64,64)));
+            wxStaticText *text =
+                    new wxStaticText(this, wxID_ANY,
+                            !address.empty() && !amount.empty() ?
+                                     wxT("A transfer to pay "+amount+" coins to "+address+" has been loaded.\n"
+                                         "Press send button if you really want to send these coins.")
+                            : wxT("Address "+address+" has been loaded in transfer page.")
+                              );
+            wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+
+            hbox->Add(bm, 0, wxALL | wxALIGN_CENTER, 10);
+            hbox->Add(text, 0, wxALL | wxALIGN_CENTER, 10);
+            return hbox;
+        }, 4500) { }
+    };
+
+    new InfoDlg(*this, *view.mainFrame, address, amount);
+}
+
 bool VcashApp::OnInit() {
-      if(singleInstanceChecker.IsAnotherRunning()) 
-        return false;
-    
     if (!wxApp::OnInit())
         return false;
 
+    std::string sendCoinsArgs = Utils::find(DDE_URL, args);
+
+    wxString ddeServerName = wxStandardPaths::Get().GetTempDir()+"/"+DDE_SERVER_NAME;
+
+    if(singleInstanceChecker.IsAnotherRunning()) {
+        wxClient client;
+        wxConnectionBase *conn = client.MakeConnection(wxT("localhost"), ddeServerName, DDE_TOPIC);
+
+        if(!sendCoinsArgs.empty()) {
+            std::string msg = DDE_URL;
+            msg += DDE_SEPARATOR + sendCoinsArgs;
+            conn->Execute(msg);
+        }
+        conn->Execute(DDE_RAISE);
+        conn->~wxConnectionBase();
+        return false;
+    }
+
+    // Start a DDEServer
+    ddeServer.Create(ddeServerName);
+
+    // Load resources
     Resources::init();
 
     // Create and fill in view
     MainFrame *mainFrame = new MainFrame(*this);
     mainFrame->Show(true);
     SetTopWindow(mainFrame);
+
+    if(!sendCoinsArgs.empty())
+        parserURI(sendCoinsArgs);
 
     // try to restore seed if no wallet exists
     bool isClient = Utils::find("mode", args) == "spv";
@@ -163,5 +324,4 @@ void VcashApp::exit() {
     // Finally, OnExit is called and the stack is stopped.
     view.mainFrame->Close();
 }
-
 

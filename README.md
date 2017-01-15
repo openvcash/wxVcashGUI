@@ -158,3 +158,70 @@ nmake /f makefile.vc BUILD=release TARGET_CPU=X64 RUNTIME_LIBS=static USE_THREAD
 ```
 
 Enjoy your GUI for Vcash!
+
+
+# Adding support for custom URL vcash protocol
+
+## On Linux
+
+Create the following text file:
+```
+gedit  ~/.local/share/applications/vcash.desktop
+```
+      
+The contents of this file should be as follows, but replacing paths with those used in your computer:                        
+```
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=<path to vcash executable folder>/vcash --url=%u
+Icon=<path to vcash icon>
+Terminal=false
+Categories=Crypto
+MimeType=x-scheme-handler/vcash;
+Name=Vcash
+Comment=Vcash
+```
+
+Edit the following text file:
+```
+gedit ~/.local/share/applications/mimeapps.list
+```
+                        
+and add the following contents in section `Default Applications` (or create this section if it isn't yet in the file):
+```
+[Default Applications]
+x-scheme-handler/vcash=vcash.desktop
+```
+
+Enter the following command:
+```
+sudo update-desktop-database
+```
+                        
+Test the protocol by clicking [this vcash link](vcash:VaEkBynLcMdos1DgfTrtBuwNaFYoJWswR6?amount=25&zerotime=true) and tip me ;-)
+                        
+## On Windows
+                 
+Create with a text editor a file with extension `.reg` and the following contents, but replacing paths to `vcash.exe` with those used in your computer:
+```
+REGEDIT4
+
+[HKEY_CLASSES_ROOT\Vcash]
+@="URL:vcash"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\Vcash\DefaultIcon]
+@="\"C:\\vcash-master\\wxVcashGUI\\vc_mswu_x64\\vcash.exe""
+
+[HKEY_CLASSES_ROOT\Vcash\shell]
+
+[HKEY_CLASSES_ROOT\Vcash\shell\open]
+
+[HKEY_CLASSES_ROOT\Vcash\shell\open\command]
+@="\"C:\\vcash-master\\wxVcashGUI\\vc_mswu_x64\\vcash.exe\" --url=\"%1\""
+```
+
+Save this file and double click on it to import its contents into the Windows Registry.                       
+
+Test the protocol by clicking [this vcash link](vcash:VaEkBynLcMdos1DgfTrtBuwNaFYoJWswR6?amount=25&zerotime=true) and tip me ;-)

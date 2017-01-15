@@ -13,7 +13,6 @@
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
-#include <wx/notebook.h>
 #include <wx/sizer.h>
 #endif
 
@@ -29,7 +28,9 @@ using namespace wxGUI;
 MainPanel::MainPanel(VcashApp &vcashApp, wxWindow &parent)
     : wxPanel(&parent, wxID_ANY) {
 
-    wxNotebook *notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, "MainPanel");
+    vcashApp.view.mainPanel = this;
+
+    notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, "MainPanel");
 
     notebook->AddPage(new AccountPage(vcashApp, *notebook), wxT("Account"));
     notebook->AddPage(new TransferPage(vcashApp, *notebook), wxT("Transfer"));
@@ -42,4 +43,21 @@ MainPanel::MainPanel(VcashApp &vcashApp, wxWindow &parent)
     );
 
     SetSizerAndFit(sizerV);
+}
+
+void MainPanel::showPage(Page page) {
+    switch (page) {
+        case Page::Account: {
+            notebook->SetSelection(0);
+            break;
+        }
+        case Page::Transfer: {
+            notebook->SetSelection(1);
+            break;
+        }
+        case Page::History: {
+            notebook->SetSelection(2);
+            break;
+        }
+    }
 }

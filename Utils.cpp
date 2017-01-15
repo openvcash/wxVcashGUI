@@ -57,3 +57,16 @@ bool Utils::isPrefix(const std::string &prefix, const std::string &str) {
     auto res = std::mismatch(prefix.begin(), prefix.end(), str.begin());
     return (res.first == prefix.end());
 }
+
+std::string Utils::extractToken(std::string &toParse, const std::string separators) {
+    std::string token;
+    size_t sz = toParse.find_first_of(separators);
+    if(sz != std::string::npos) {
+        token = toParse.substr(0, sz);
+        toParse = toParse.substr(sz+1, toParse.length()-sz-1);
+    } else {
+        token = toParse;
+        toParse = "";
+    }
+    return token;
+}

@@ -23,10 +23,12 @@
 #include "ContextMenu.h"
 #include "HistoryPage.h"
 #include "MainFrame.h"
+#include "MainPanel.h"
 #include "MiningPage.h"
 #include "Resources.h"
 #include "StatusBarWallet.h"
 #include "StatusBar.h"
+#include "TransferPage.h"
 #include "TaskBarIcon.h"
 #include "ToolsFrame.h"
 #include "ToolsPanel.h"
@@ -52,6 +54,30 @@ void View::setStake(const std::string &stake) {
 
 void View::setImmature(const std::string &immature) {
     accountPage->setImmature(immature);
+}
+
+// MainPanel
+
+void View::showPage(Page page) {
+    mainPanel->showPage(page);
+}
+
+// Transfer
+
+void View::setDestinationAddress(const std::string &address) {
+    transferPage->setDestinationAddress(address);
+}
+
+void View::setAmount(const std::string &amount) {
+    transferPage->setsetAmount(amount);
+}
+
+void View::setZerotime(bool state) {
+    transferPage->setZerotime(state);
+}
+
+void View::setChainblender(bool state) {
+    transferPage->setChainblender(state);
 }
 
 // Wallet state
@@ -181,12 +207,13 @@ void View::showContextMenu(VcashApp &vcashApp, bool atClickPosition) {
 
 void View::showHideToolsFrame(bool showAlso) {
     if(toolsFrame->IsShown())
-        toolsFrame->Hide();
+        toolsFrame->HideWithEffect(wxSHOW_EFFECT_ROLL_TO_TOP, 250);
     else if (showAlso) {
         toolsFrame->updatePosition();
+        toolsFrame->ShowWithEffect(wxSHOW_EFFECT_ROLL_TO_BOTTOM, 250);
         toolsFrame->Iconize(false); // restore the window if minimized
         toolsFrame->Restore();      // restore the window if minimized
-        toolsFrame->Show();
+        toolsFrame->Refresh();
         // toolsFrame->updatePosition();
         toolsFrame->SetFocus();
     }

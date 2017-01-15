@@ -51,15 +51,16 @@ int Controller::onExit() {
 
 bool Controller::validateAddress(const std::string &address) {
     // not really needed in the end as the stack does the verification
-    return true;
+    return stack.validateAddress(address);
 }
 
 bool Controller::validateAmount(const std::string &amount) {
     // checks this string represents a valid amount of coins
+    double vcashMaxSupply = wxStack::maxMoneySupply / wxStack::oneVcash;
     bool result;
     try {
         double value = std::stod(amount);
-        result = value > 0;
+        result = (value > 0) && (value <= vcashMaxSupply);
     }
     catch(std::exception& e) {
         result = false;

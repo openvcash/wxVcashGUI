@@ -33,11 +33,14 @@ namespace wxGUI {
     class ConsolePage;
     class HistoryPage;
     class MainFrame;
+    class MainPanel;
     class MiningPage;
+    enum class Page;
     class StatisticsPage;
     class StatusBarWallet;
     class StatusBar;
     class TaskBarIcon;
+    class TransferPage;
     class ToolsFrame;
     class ToolsPanel;
     class VcashApp;
@@ -54,6 +57,9 @@ namespace wxGUI {
 
         void setStatusBarWorking(bool working);
 
+        // MainPanel
+        void showPage(Page page);
+
         // Account
         void setBalance(const std::string &balance);
 
@@ -62,6 +68,15 @@ namespace wxGUI {
         void setStake(const std::string &stake);
 
         void setImmature(const std::string &immature);
+
+        // Transfer
+        void setDestinationAddress(const std::string &address);
+
+        void setAmount(const std::string &amount);
+
+        void setZerotime(bool state);
+
+        void setChainblender(bool state);
 
         // History of transactions
         void addTransaction(const std::string &txid, const std::time_t &date, const std::string &status,
@@ -109,6 +124,7 @@ namespace wxGUI {
         void showHideToolsFrame(bool showAlso = true);
 
         MainFrame *mainFrame;
+        MainPanel *mainPanel;
         TaskBarIcon *taskBarIcon;
         ToolsFrame *toolsFrame;
         StatusBar *statusBar;
@@ -121,6 +137,7 @@ namespace wxGUI {
         HistoryPage *historyPage;
         MiningPage *miningPage;
         StatisticsPage *statisticsPage;
+        TransferPage *transferPage;
     };
 }
 

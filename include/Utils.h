@@ -34,6 +34,8 @@ namespace wxGUI {
         static std::string find(const std::string &key, const std::map<std::string, std::string> &pairs);
 
         static bool isPrefix(const std::string &prefix, const std::string &str);
+
+        static std::string extractToken(std::string &toParse, const std::string separators);
     };
 }
 

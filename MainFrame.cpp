@@ -109,8 +109,8 @@ void MainFrame::minimizeToTray() {
 
 void MainFrame::restoreFromTray() {
     vcashApp.view.mainFrame->Iconize(false); // restore the window if minimized
-    vcashApp.view.mainFrame->Restore();      // restore the window if minimized
     vcashApp.view.mainFrame->SetFocus();     // focus on my window
+    vcashApp.view.mainFrame->Restore();      // restore the window if minimized
     vcashApp.view.mainFrame->Raise();        // bring window to front
     vcashApp.view.mainFrame->Show(true);     // show the window
 }

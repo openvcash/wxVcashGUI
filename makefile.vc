@@ -99,7 +99,7 @@ VCASH_LIBS_DEPS = \
 	"./../deps/openssl/lib$(LIB_OPENSSL_ARCH_SUFFIX)/ssleay32MT.lib" \
 	"./../deps/db/build_windows/x$(LIB_ARCH_SUFFIX)/Static Release/libdb61s.lib" 
 VCASH_LIBS_WX = \
-	$(__WXLIB_RICHTEXT_p) $(__WXLIB_ADV_p) $(__WXLIB_HTML_p) $(__WXLIB_CORE_p) $(__WXLIB_XML_p) $(__WXLIB_BASE_p) wxexpat$(WXDEBUGFLAG).lib $(__LIB_TIFF_p) $(__LIB_JPEG_p) $(__LIB_PNG_p) wxzlib$(WXDEBUGFLAG).lib   kernel32.lib user32.lib gdi32.lib comctl32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib shlwapi.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib version.lib wsock32.lib wininet.lib
+	$(__WXLIB_RICHTEXT_p) $(__WXLIB_ADV_p) $(__WXLIB_HTML_p) $(__WXLIB_CORE_p) $(__WXLIB_XML_p) $(__WXLIB_NET_p) $(__WXLIB_BASE_p) wxexpat$(WXDEBUGFLAG).lib $(__LIB_TIFF_p) $(__LIB_JPEG_p) $(__LIB_PNG_p) wxzlib$(WXDEBUGFLAG).lib   kernel32.lib user32.lib gdi32.lib comctl32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib shlwapi.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib version.lib wsock32.lib wininet.lib
 VCASHGUI_LIBS_DEPS = \
 	"./deps/libqrencode/libqrencode.lib"
 	
@@ -438,8 +438,6 @@ $(OBJS)\Vcash.exe: $(VCASH_OBJECTS) $(OBJS)\vcash.res
 	$(VCASH_OBJECTS) $(VCASH_RESOURCES) $(VCASH_LIBS_DEPS) $(VCASHGUI_LIBS_DEPS) $(VCASH_LIBS_WX)
 <<
 	mt.exe /manifest $(OBJS)\Vcash.exe.manifest -outputresource:$(OBJS)\Vcash.exe;1
-
-
 
 
 $(OBJS)\AccountPage.obj: .\AccountPage.cpp

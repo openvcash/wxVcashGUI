@@ -28,39 +28,41 @@
 using namespace wxGUI;
 
 TransferPage::TransferPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent) {
+    vcashApp.view.transferPage = this;
+
     double vcashMaxSupply = wxStack::maxMoneySupply / wxStack::oneVcash;
     int decimals = 6;
     wxFloatingPointValidator<double>
-            payValidator(decimals, nullptr, wxNUM_VAL_ZERO_AS_BLANK | wxNUM_VAL_NO_TRAILING_ZEROES);
-    payValidator.SetRange(0, vcashMaxSupply);
+            amountValidator(decimals, nullptr, wxNUM_VAL_ZERO_AS_BLANK | wxNUM_VAL_NO_TRAILING_ZEROES);
+    amountValidator.SetRange(0, vcashMaxSupply);
 
-    wxTextValidator toValidator(wxFILTER_ALPHANUMERIC);
+    wxTextValidator addressValidator(wxFILTER_ALPHANUMERIC);
 
-    wxTextCtrl *payCtrl = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, 0, payValidator);
-    wxTextCtrl *toCtrl = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, 0 /*, toValidator*/);
+    amountCtrl = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, 0, amountValidator);
+    addressCtrl = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, 0 /*, addressValidator*/);
 
-    wxCheckBox *zeroTimeCtrl = new wxCheckBox(this, wxID_ANY, wxT("ZeroTime"));
+    zeroTimeCtrl = new wxCheckBox(this, wxID_ANY, wxT("ZeroTime"));
     zeroTimeCtrl->SetValue(false);
-    wxCheckBox *blendedOnlyCtrl = new wxCheckBox(this, wxID_ANY, wxT("Blended Only"));
+    blendedOnlyCtrl = new wxCheckBox(this, wxID_ANY, wxT("Blended Only"));
     blendedOnlyCtrl->SetValue(false);
 
     wxButton *send = new wxButton(this, wxID_ANY, wxT("Send"));
 
-    payCtrl->SetToolTip(wxT("Amount of coins to send"));
-    toCtrl->SetToolTip(wxT("Destination address to send coins to"));
+    amountCtrl->SetToolTip(wxT("Amount of coins to send"));
+    addressCtrl->SetToolTip(wxT("Destination address to send coins to"));
     zeroTimeCtrl->SetToolTip(wxT("Enable ZeroTime for this transaction"));
     blendedOnlyCtrl->SetToolTip(wxT("Use only blended coins for this transaction"));
     send->SetToolTip(wxT("Send coins now"));
 
-    payCtrl->SetHint(wxT("0.0"));
-    toCtrl->SetHint(wxT("destination address"));
+    amountCtrl->SetHint(wxT("0.0"));
+    addressCtrl->SetHint(wxT("destination address"));
 
     const int cols = 2, vgap = 5, hgap = 10, border = 20;
     wxFlexGridSizer *fgs = new wxFlexGridSizer(cols, vgap, hgap);
     fgs->Add(new wxStaticText(this, wxID_ANY, wxT("Pay:")), wxSizerFlags().Right());
-    fgs->Add(payCtrl, 1, wxRIGHT | wxEXPAND, 165);
+    fgs->Add(amountCtrl, 1, wxRIGHT | wxEXPAND, 165);
     fgs->Add(new wxStaticText(this, wxID_ANY, wxT("To:")), wxSizerFlags().Right());
-    fgs->Add(toCtrl, 1, wxEXPAND);
+    fgs->Add(addressCtrl, 1, wxEXPAND);
     fgs->AddGrowableCol(1, 1);
 
     wxSizer *sizerV = new wxBoxSizer(wxVERTICAL);
@@ -84,21 +86,21 @@ TransferPage::TransferPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&pare
     SetSizerAndFit(pageSizer);
 
     send->Bind(wxEVT_BUTTON,
-       [&parent, &vcashApp, payCtrl, toCtrl, zeroTimeCtrl, blendedOnlyCtrl](wxCommandEvent &) {
+       [&parent, &vcashApp, this](wxCommandEvent &) {
            Controller &controller = vcashApp.controller;
 
-           std::string pay = payCtrl->GetValue().ToStdString();
+           std::string pay = amountCtrl->GetValue().ToStdString();
 
            if (!controller.validateAmount(pay)) {
-               wxMessageBox(pay + wxT(" is not a valid amount of coins."), wxT("Error"),
+               wxMessageBox(wxT("\"") + pay + wxT("\" is not a valid amount of coins."), wxT("Error"),
                             wxOK | wxICON_EXCLAMATION, &parent
                );
                return;
            }
 
-           std::string to = toCtrl->GetValue().ToStdString();
+           std::string to = addressCtrl->GetValue().ToStdString();
            if (!controller.validateAddress(to)) {
-               wxMessageBox(to + wxT(" is not a valid address."), wxT("Error"), wxOK | wxICON_EXCLAMATION,
+               wxMessageBox(wxT("\"") + to + wxT("\" is not a valid address."), wxT("Error"), wxOK | wxICON_EXCLAMATION,
                             &parent
                );
                return;
@@ -118,4 +120,18 @@ TransferPage::TransferPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&pare
     });
 }
 
+void TransferPage::setDestinationAddress(const std::string &address) {
+    addressCtrl->SetValue(address);
+}
 
+void TransferPage::setsetAmount(const std::string &amount) {
+    amountCtrl->SetValue(amount);
+}
+
+void TransferPage::setZerotime(bool state) {
+    zeroTimeCtrl->SetValue(state);
+}
+
+void TransferPage::setChainblender(bool state) {
+    blendedOnlyCtrl->SetValue(state);
+}

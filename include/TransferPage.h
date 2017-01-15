@@ -16,7 +16,9 @@
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
+#include <wx/checkbox.h>
 #include <wx/panel.h>
+#include <wx/textctrl.h>
 #endif
 
 namespace wxGUI {
@@ -26,6 +28,13 @@ namespace wxGUI {
     class TransferPage : public wxPanel {
     public:
         TransferPage(VcashApp &vcashApp, wxWindow &parent);
+        void setDestinationAddress(const std::string &address);
+        void setsetAmount(const std::string &amount);
+        void setZerotime(bool state);
+        void setChainblender(bool state);
+    private:
+        wxTextCtrl *addressCtrl, *amountCtrl;
+        wxCheckBox *zeroTimeCtrl, *blendedOnlyCtrl;
     };
 }
 

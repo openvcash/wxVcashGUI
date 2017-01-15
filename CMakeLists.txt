@@ -80,6 +80,7 @@ TARGET_LINK_LIBRARIES(vcash
         wx_gtk3u_adv-3.1
         wx_baseu_xml-3.1
         wx_gtk3u_html-3.1
+        wx_baseu_net-3.1
 
         wx_gtk3u_core-3.1 wx_baseu-3.1 wx_gtk3u_adv-3.1 wxtiff-3.1 wxjpeg-3.1
         pthread
