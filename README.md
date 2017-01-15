@@ -199,7 +199,7 @@ Enter the following command:
 sudo update-desktop-database
 ```
                         
-Test the protocol by clicking [this vcash link](vcash://VaEkBynLcMdos1DgfTrtBuwNaFYoJWswR6?amount=25&zerotime=true) and tip me ;-)
+Test the protocol by clicking this vcash link: `vcash://VaEkBynLcMdos1DgfTrtBuwNaFYoJWswR6?amount=25&zerotime=true` and tip me ;-)
                         
 ## On Windows
                  
@@ -224,4 +224,4 @@ REGEDIT4
 
 Save this file and double click on it to import its contents into the Windows Registry.                       
 
-Test the protocol by clicking [this vcash link](vcash://VaEkBynLcMdos1DgfTrtBuwNaFYoJWswR6?amount=25&zerotime=true) and tip me ;-)
+Test the protocol by clicking this vcash link: `vcash://VaEkBynLcMdos1DgfTrtBuwNaFYoJWswR6?amount=25&zerotime=true` and tip me ;-)
