@@ -71,10 +71,10 @@ AddressesPage::AddressesPage(VcashApp &vcashApp, wxWindow &parent)
 
     vcashApp.view.addressesPage = this;
 
-    listCtrl = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(445, wxDefaultSize.GetHeight()),
+    listCtrl = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(450, wxDefaultSize.GetHeight()),
                                wxLC_REPORT | wxLC_SINGLE_SEL | wxBORDER_NONE);
-    listCtrl->InsertColumn(Column::Account, "Account", wxLIST_FORMAT_LEFT, 100);
-    listCtrl->InsertColumn(Column::Address, "Address", wxLIST_FORMAT_LEFT, 340);
+    listCtrl->InsertColumn(Column::Account, "Account", wxLIST_FORMAT_LEFT);
+    listCtrl->InsertColumn(Column::Address, "Address", wxLIST_FORMAT_LEFT);
 
     wxSizer *pageSizer = new wxBoxSizer(wxVERTICAL);
     pageSizer->Add(listCtrl, 1, wxALL | wxEXPAND, 5);
@@ -201,7 +201,9 @@ void AddressesPage::addAddress(const std::string &account, const std::string &ad
         if (index >= 0) {
             listCtrl->SetItemPtrData(index, (wxUIntPtr) newItemIndex);
             listCtrl->SetItem(index, Account, wxString(account));
+            listCtrl->SetColumnWidth(Account, wxLIST_AUTOSIZE_USEHEADER);
             listCtrl->SetItem(index, Address, wxString(address));
+            listCtrl->SetColumnWidth(Address, wxLIST_AUTOSIZE_USEHEADER);
         } else
             addresses.erase(pair.first); // was not inserted in listCtrl. Remove it from addresses map
     } else {
@@ -236,6 +238,7 @@ void AddressesPage::emboldenAddress(const std::string &address, bool bold) {
             info.SetBackgroundColour(wxColour(0,1,2,3));
             info.SetBackgroundColour(colour);
             listCtrl->SetItem(info);
+            listCtrl->SetColumnWidth(Address, wxLIST_AUTOSIZE_USEHEADER);
         }
     }
 }

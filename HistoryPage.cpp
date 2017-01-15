@@ -82,7 +82,7 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
 
     vcashApp.view.historyPage = this;
 
-    listCtrl = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(430, wxDefaultSize.GetHeight()),
+    listCtrl = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(435, wxDefaultSize.GetHeight()),
                               wxLC_REPORT | wxLC_SINGLE_SEL | wxBORDER_NONE);
 
     auto addMargin = [](wxBitmap bm, bool rotate) {
@@ -125,14 +125,9 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
     listCtrl->SetImageList(statusImages, wxIMAGE_LIST_SMALL);
 
     listCtrl->InsertColumn(Icon, wxT(""), wxLIST_FORMAT_CENTER, 30);
-    listCtrl->InsertColumn(Date, wxT("Date"), wxLIST_FORMAT_LEFT, 135);
-	#if defined (__WXMSW__)
-	#define STATUS_WIDTH 115
-	#else
-	#define STATUS_WIDTH 125
-	#endif	
-    listCtrl->InsertColumn(Status, wxT("Status"), wxLIST_FORMAT_LEFT, STATUS_WIDTH);
-    listCtrl->InsertColumn(Amount, wxT("Amount"), wxLIST_FORMAT_LEFT, 130);
+    listCtrl->InsertColumn(Date, wxT("Date"), wxLIST_FORMAT_LEFT);
+    listCtrl->InsertColumn(Status, wxT("Status"), wxLIST_FORMAT_LEFT);
+    listCtrl->InsertColumn(Amount, wxT("Amount"), wxLIST_FORMAT_RIGHT);
 
     wxSizer *pageSizer = new wxBoxSizer(wxHORIZONTAL);
     pageSizer->Add(listCtrl, 1, wxALL | wxEXPAND, 5);
@@ -275,8 +270,11 @@ void HistoryPage::addTransaction(const std::string &txid, const std::time_t &tim
 
         listCtrl->SetItem(index, Icon, wxString(""), static_cast<int>(BulletColor::Yellow));
         listCtrl->SetItem(index, Date, wxString(formattedTime));
+        listCtrl->SetColumnWidth(Date, wxLIST_AUTOSIZE_USEHEADER);
         listCtrl->SetItem(index, Status, wxString(status));
+        listCtrl->SetColumnWidth(Status, wxLIST_AUTOSIZE_USEHEADER);
         listCtrl->SetItem(index, Amount, wxString(amount));
+        listCtrl->SetColumnWidth(Amount, wxLIST_AUTOSIZE_USEHEADER);
         listCtrl->SetItemState(index, 0, 0);
         // listCtrl->EnsureVisible(index);
     }
@@ -305,6 +303,7 @@ void HistoryPage::setStatus(const std::string &txid, const std::string &status) 
                        (wxUIntPtr) &(it->first));  // find index of item in listCtrl with this txid
         if (index >= 0) {
             listCtrl->SetItem(index, Status, wxString(status));
+            listCtrl->SetColumnWidth(Status, wxLIST_AUTOSIZE_USEHEADER);
         }
     }
 }
