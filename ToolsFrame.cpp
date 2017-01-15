@@ -67,8 +67,8 @@ void ToolsFrame::updatePosition() {
 
 void ToolsFrame::show() {
     updatePosition();
-    ShowWithEffect(wxSHOW_EFFECT_ROLL_TO_BOTTOM, 250);
     Iconize(false); // restore the window if minimized
+    ShowWithEffect(wxSHOW_EFFECT_ROLL_TO_BOTTOM, 250);
     Restore();      // restore the window if minimized
     Refresh();
     // updatePosition();
