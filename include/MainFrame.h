@@ -28,6 +28,7 @@ namespace wxGUI {
         MainFrame(VcashApp &vcashApp);
         void minimizeToTray();
         void restoreFromTray();
+        void minimizeToRestoreFromTray();
     private:
         VcashApp &vcashApp;
     };

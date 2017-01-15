@@ -64,3 +64,24 @@ void ToolsFrame::updatePosition() {
                 wxPoint(rect.x + rect.width / 2, rect.y + rect.height)));
     }
 }
+
+void ToolsFrame::show() {
+    updatePosition();
+    ShowWithEffect(wxSHOW_EFFECT_ROLL_TO_BOTTOM, 250);
+    Iconize(false); // restore the window if minimized
+    Restore();      // restore the window if minimized
+    Refresh();
+    // updatePosition();
+    SetFocus();
+}
+
+void ToolsFrame::hide() {
+    HideWithEffect(wxSHOW_EFFECT_ROLL_TO_TOP, 250);
+}
+
+void ToolsFrame::showHide() {
+    if(IsShown())
+        hide();
+    else
+        show();
+}

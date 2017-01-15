@@ -114,3 +114,10 @@ void MainFrame::restoreFromTray() {
     vcashApp.view.mainFrame->Raise();        // bring window to front
     vcashApp.view.mainFrame->Show(true);     // show the window
 }
+
+void MainFrame::minimizeToRestoreFromTray() {
+    if(IsShown())
+        minimizeToTray();
+    else
+        restoreFromTray();
+}

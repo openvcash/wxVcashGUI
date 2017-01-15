@@ -25,7 +25,12 @@ namespace wxGUI {
 
     class ContextMenu : public wxMenu {
     public:
-        ContextMenu(VcashApp &vcashApp, wxWindow &parent, wxPoint pos = wxDefaultPosition);
+        enum class MenuEntry {
+            About, ChangePass, Encrypt, Exit, Lock, Rescan, Seed, Unlock
+        };
+        ContextMenu(VcashApp &vcashApp);
+        static void processSelection(VcashApp &vcashApp, wxWindow &parent, MenuEntry selection);
+        static void runContextMenu(VcashApp &vcashApp, wxWindow &parent, wxPoint pos = wxDefaultPosition);
     };
 }
 

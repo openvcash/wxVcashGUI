@@ -23,41 +23,37 @@
 
 using namespace wxGUI;
 
-ContextMenu::ContextMenu(VcashApp &vcashApp, wxWindow &parent, wxPoint pos) : wxMenu() {
-    enum PopupMenu {
-        About, ChangePass, Encrypt, Exit, Lock, Rescan, Seed, Unlock
-    };
-
+ContextMenu::ContextMenu(VcashApp &vcashApp) : wxMenu() {
     bool loaded = vcashApp.controller.isWalletLoaded();
-    if(loaded) {
+    if (loaded) {
         wxMenu *submenu = new wxMenu();
-        if(!vcashApp.controller.isWalletLocked()) {
-            submenu->Append(Seed, wxT("&Show HD seed"));
+        if (!vcashApp.controller.isWalletLocked()) {
+            submenu->Append(static_cast<int>(MenuEntry::Seed), wxT("&Show HD seed"));
         } else {
-            submenu->Append(Seed, wxT("&Show HD seed (unlock first!)"));
-            submenu->Enable(Seed, false);
+            submenu->Append(static_cast<int>(MenuEntry::Seed), wxT("&Show HD seed (unlock first!)"));
+            submenu->Enable(static_cast<int>(MenuEntry::Seed), false);
         }
-        if(vcashApp.controller.isWalletCrypted())
-            submenu->Append(ChangePass, wxT("&Change password"));
-        if(!vcashApp.controller.isWalletCrypted())
-            submenu->Append(Encrypt, wxT("&Encrypt"));
-        if(vcashApp.controller.isWalletLocked())
-            submenu->Append(Unlock, wxT("&Unlock"));
-        else if(vcashApp.controller.isWalletCrypted()) {
-            submenu->Append(Lock, wxT("&Lock"));
+        if (vcashApp.controller.isWalletCrypted())
+            submenu->Append(static_cast<int>(MenuEntry::ChangePass), wxT("&Change password"));
+        if (!vcashApp.controller.isWalletCrypted())
+            submenu->Append(static_cast<int>(MenuEntry::Encrypt), wxT("&Encrypt"));
+        if (vcashApp.controller.isWalletLocked())
+            submenu->Append(static_cast<int>(MenuEntry::Unlock), wxT("&Unlock"));
+        else if (vcashApp.controller.isWalletCrypted()) {
+            submenu->Append(static_cast<int>(MenuEntry::Lock), wxT("&Lock"));
         }
-        submenu->Append(Rescan, wxT("&Rescan"));
+        submenu->Append(static_cast<int>(MenuEntry::Rescan), wxT("&Rescan"));
         AppendSubMenu(submenu, wxT("Wallet"));
     }
-    Append(About, wxT("&About"));
+    Append(static_cast<int>(MenuEntry::About), wxT("&About"));
 
-    Append(Exit, wxT("&Exit"));
-    Enable(Exit, loaded);
+    Append(static_cast<int>(MenuEntry::Exit), wxT("&Exit"));
+    Enable(static_cast<int>(MenuEntry::Exit), loaded);
+}
 
-    auto select = parent.GetPopupMenuSelectionFromUser(*this, pos);
-
-    switch(select) {
-        case About: {
+void ContextMenu::processSelection(VcashApp &vcashApp, wxWindow &parent, MenuEntry selection) {
+    switch(selection) {
+        case MenuEntry::About: {
             class AboutDlg : public ShowInfoDialog {
             public:
                 AboutDlg(VcashApp &vcashApp, wxWindow &parent) : ShowInfoDialog(parent, wxT("About wxVcash"), [this, &vcashApp]() {
@@ -78,31 +74,31 @@ ContextMenu::ContextMenu(VcashApp &vcashApp, wxWindow &parent, wxPoint pos) : wx
             new AboutDlg(vcashApp, parent);
             break;
         }
-        case ChangePass: {
+        case MenuEntry::ChangePass: {
             WalletActions::changePassword(vcashApp, parent);
             break;
         }
-        case Exit: {
+        case MenuEntry::Exit: {
             vcashApp.exit();
             break;
         }
-        case Encrypt: {
+        case MenuEntry::Encrypt: {
             WalletActions::encrypt(vcashApp, parent);
             break;
         }
-        case Lock: {
+        case MenuEntry::Lock: {
             WalletActions::lock(vcashApp, parent);
             break;
         }
-        case Rescan: {
+        case MenuEntry::Rescan: {
             WalletActions::rescan(vcashApp, parent);
             break;
         }
-        case Seed: {
+        case MenuEntry::Seed: {
             WalletActions::dumpHDSeed(vcashApp, parent);
             break;
         }
-        case Unlock: {
+        case MenuEntry::Unlock: {
             WalletActions::unlock(vcashApp, parent);
             break;
         }
@@ -110,3 +106,11 @@ ContextMenu::ContextMenu(VcashApp &vcashApp, wxWindow &parent, wxPoint pos) : wx
             break;
     }
 }
+
+void ContextMenu::runContextMenu(VcashApp &vcashApp, wxWindow &parent, wxPoint pos) {
+    auto contextMenu = new ContextMenu(vcashApp);
+    auto select = parent.GetPopupMenuSelectionFromUser(*contextMenu, pos);
+    processSelection(vcashApp, parent, static_cast<MenuEntry>(select));
+}
+
+

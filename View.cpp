@@ -58,7 +58,7 @@ void View::setImmature(const std::string &immature) {
 
 // MainPanel
 
-void View::showPage(Page page) {
+void View::showMainPage(MainPage page) {
     mainPanel->showPage(page);
 }
 
@@ -133,7 +133,7 @@ void View::emboldenAddress(const std::string &address, bool bold) {
 
 // apends a new line of text to console output
 void View::appendToConsole(const std::string &text, bool bold) {
-    toolsPanel->showConsolePage();
+    showToolsPage(ToolsPage::Console);
     consolePage->appendToConsole(text, bold);
 }
 
@@ -200,21 +200,36 @@ std::pair<bool, std::string> View::restoreHDSeed(VcashApp &vcashApp) {
     return WalletActions::restoreHDSeed(vcashApp.controller, *mainFrame);
 }
 
-void View::showContextMenu(VcashApp &vcashApp, bool atClickPosition) {
-    wxPoint p = atClickPosition ? wxDefaultPosition : walletLock->GetPosition() +  statusBar->GetPosition();
-    new ContextMenu(vcashApp, *mainFrame, p);
+void View::runContextMenu(VcashApp &vcashApp, bool atClickPosition) {
+    wxPoint p = atClickPosition ? wxDefaultPosition : walletLock->GetPosition() + statusBar->GetPosition();
+    ContextMenu::runContextMenu(vcashApp, *mainFrame, p);
 }
 
-void View::showHideToolsFrame(bool showAlso) {
-    if(toolsFrame->IsShown())
-        toolsFrame->HideWithEffect(wxSHOW_EFFECT_ROLL_TO_TOP, 250);
-    else if (showAlso) {
-        toolsFrame->updatePosition();
-        toolsFrame->ShowWithEffect(wxSHOW_EFFECT_ROLL_TO_BOTTOM, 250);
-        toolsFrame->Iconize(false); // restore the window if minimized
-        toolsFrame->Restore();      // restore the window if minimized
-        toolsFrame->Refresh();
-        // toolsFrame->updatePosition();
-        toolsFrame->SetFocus();
-    }
+void View::showToolsFrame() {
+    toolsFrame->show();
 }
+
+void View::hideToolsFrame() {
+    toolsFrame->hide();
+}
+
+void View::showHideToolsFrame() {
+    toolsFrame->showHide();
+}
+
+void View::showToolsPage(ToolsPage page) {
+    toolsPanel->showPage(page);
+}
+
+void View::minimizeToTray() {
+    mainFrame->minimizeToTray();
+}
+
+void View::restoreFromTray() {
+    mainFrame->restoreFromTray();
+}
+
+void View::minimizeToRestoreFromTray() {
+    mainFrame->minimizeToRestoreFromTray();
+}
+

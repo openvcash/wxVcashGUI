@@ -47,14 +47,30 @@ ToolsPanel::ToolsPanel(VcashApp &vcashApp, wxWindow &parent)
 
     notebook->Bind(wxEVT_CHAR, [&vcashApp](wxKeyEvent &ev) {
         if(ev.GetKeyCode() == WXK_ESCAPE)
-            vcashApp.view.showHideToolsFrame(false);
+            vcashApp.view.hideToolsFrame();
         ev.Skip();
     });
 }
 
-void ToolsPanel::showConsolePage() {
-    notebook->SetSelection(2);
+void ToolsPanel::showPage(ToolsPage page) {
+    switch (page) {
+        case ToolsPage::Statistics: {
+            notebook->SetSelection(0);
+            break;
+        }
+        case ToolsPage::Addresses: {
+            notebook->SetSelection(1);
+            break;
+        }
+        case ToolsPage::Console: {
+            notebook->SetSelection(2);
+            break;
+        }
+        case ToolsPage::Mining: {
+            notebook->SetSelection(3);
+            break;
+        }
+    }
     GetParent()->Show(true);
 }
-
 

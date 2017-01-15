@@ -38,22 +38,22 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
     StatusBarImage *settingsImg = new StatusBarImage(*this, Resources::settings);
 
     Bind(wxEVT_RIGHT_DOWN, [&vcashApp](wxMouseEvent &ev) {
-        vcashApp.view.showHideToolsFrame(false);
+        vcashApp.view.hideToolsFrame();
         ev.Skip();
     });
 
     Bind(wxEVT_LEFT_DOWN, [&vcashApp](wxMouseEvent &ev) {
-        vcashApp.view.showHideToolsFrame(false);
+        vcashApp.view.hideToolsFrame();
         ev.Skip();
     });
 
     toolsImg->bindOnClick([&vcashApp](wxMouseEvent &ev) {
-        vcashApp.view.showHideToolsFrame(true);
+        vcashApp.view.showHideToolsFrame();
         ev.Skip();
     });
 
     settingsImg->bindOnClick([&vcashApp](wxMouseEvent &ev) {
-        vcashApp.view.showContextMenu(vcashApp);
+        vcashApp.view.runContextMenu(vcashApp);
     });
 
     statusBarWallet = new StatusBarWallet(vcashApp, *this);

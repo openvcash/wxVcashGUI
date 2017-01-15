@@ -24,10 +24,13 @@ namespace wxGUI {
     class VcashApp;
 
     class TaskBarIcon : public wxTaskBarIcon {
+    private:
+        VcashApp &vcashApp;
     public:
         TaskBarIcon(VcashApp &vcashApp);
         void disable();
         static bool isEnabled();
+        wxMenu* CreatePopupMenu();
     };
 };
 

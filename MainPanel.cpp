@@ -45,17 +45,17 @@ MainPanel::MainPanel(VcashApp &vcashApp, wxWindow &parent)
     SetSizerAndFit(sizerV);
 }
 
-void MainPanel::showPage(Page page) {
+void MainPanel::showPage(MainPage page) {
     switch (page) {
-        case Page::Account: {
+        case MainPage::Account: {
             notebook->SetSelection(0);
             break;
         }
-        case Page::Transfer: {
+        case MainPage::Transfer: {
             notebook->SetSelection(1);
             break;
         }
-        case Page::History: {
+        case MainPage::History: {
             notebook->SetSelection(2);
             break;
         }

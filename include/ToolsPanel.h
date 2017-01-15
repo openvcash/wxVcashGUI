@@ -25,10 +25,12 @@ namespace wxGUI {
 
     class VcashApp;
 
+    enum class ToolsPage { Statistics, Addresses, Console, Mining };
+
     class ToolsPanel : public wxPanel {
     public:
         ToolsPanel(VcashApp &vcashApp, wxWindow &parent);
-        void showConsolePage();
+        void showPage(ToolsPage page);
     private:
         wxNotebook *notebook;
     };

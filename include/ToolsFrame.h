@@ -28,6 +28,10 @@ namespace wxGUI {
     public:
         ToolsFrame(VcashApp &vcashApp, wxWindow &parent);
         void updatePosition();
+        void show();
+        void hide();
+        void showHide();
+
     private:
         wxWindow &parent;
         VcashApp &vcashApp;

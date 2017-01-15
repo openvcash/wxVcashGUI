@@ -52,7 +52,7 @@ bool VcashApp::DDEConnection::OnExec(const wxString& topic, const wxString& data
         std::string msg = Utils::extractToken(toParse, DDE_SEPARATOR);
 
         if(msg==DDE_RAISE) {
-            vcashApp.view.mainFrame->restoreFromTray();
+            vcashApp.view.restoreFromTray();
         } else if(msg==DDE_URL) {
             vcashApp.parserURI(toParse);
         }
@@ -194,7 +194,7 @@ void VcashApp::parserURI(std::string uri) {
     else if(chainblender==TK_FALSE)
         view.setChainblender(false);
 
-    view.showPage(Page::Transfer);
+    view.showMainPage(MainPage::Transfer);
 
     class InfoDlg : public ShowInfoDialog {
     public:
@@ -291,7 +291,7 @@ bool VcashApp::OnInit() {
     }, CTRL_T);
 
     Bind(wxEVT_MENU, [this](wxCommandEvent &ev) {
-        view.showContextMenu(*this, false);
+        view.runContextMenu(*this, false);
     }, CTRL_M);
 
     return controller.onInit(args);

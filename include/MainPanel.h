@@ -25,14 +25,14 @@ namespace wxGUI {
 
     class VcashApp;
 
-    enum class Page { Account, Transfer, History };
+    enum class MainPage { Account, Transfer, History };
 
     class MainPanel : public wxPanel {
     private:
         wxNotebook *notebook;
     public:
         MainPanel(VcashApp &vcashApp, wxWindow &parent);
-        void showPage(Page page);
+        void showPage(MainPage page);
     };
 }
 

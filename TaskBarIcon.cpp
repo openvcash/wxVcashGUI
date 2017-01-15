@@ -18,19 +18,18 @@
 
 using namespace wxGUI;
 
-TaskBarIcon::TaskBarIcon(VcashApp &vcashApp) : wxTaskBarIcon() {
+TaskBarIcon::TaskBarIcon(VcashApp &vcashApp) : vcashApp(vcashApp), wxTaskBarIcon() {
     SetIcon(Resources::vcashIcon, wxT("Vcash"));
 
-    Bind(wxEVT_TASKBAR_LEFT_DOWN, [this, &vcashApp](wxTaskBarIconEvent &ev) {
-        bool wasShown = vcashApp.view.mainFrame->IsShown();
-        if(wasShown)
-            vcashApp.view.mainFrame->minimizeToTray();
-        else
-            vcashApp.view.mainFrame->restoreFromTray();
+    Bind(wxEVT_TASKBAR_LEFT_DOWN, [this](wxTaskBarIconEvent &ev) {
+        this->vcashApp.view.minimizeToRestoreFromTray();
     });
 
-    Bind(wxEVT_TASKBAR_RIGHT_DOWN, [&vcashApp] (wxTaskBarIconEvent &ev) {
-        vcashApp.view.showContextMenu(vcashApp);
+    Bind(wxEVT_MENU, [this] (wxCommandEvent &ev) {
+        VcashApp &vcashApp = this->vcashApp;
+        ContextMenu::MenuEntry selection = static_cast<ContextMenu::MenuEntry>(ev.GetId());
+        vcashApp.view.restoreFromTray();
+        ContextMenu::processSelection(vcashApp, *vcashApp.view.mainFrame, selection);
     });
 }
 
@@ -43,5 +42,8 @@ void TaskBarIcon::disable() {
     wxIcon icon;
     icon.CopyFromBitmap(wxBitmap(image));
     SetIcon(icon);
-    //Unbind(wxEVT_TASKBAR_RIGHT_DOWN);
+}
+
+wxMenu* TaskBarIcon::CreatePopupMenu() {
+    return new ContextMenu(vcashApp);
 }

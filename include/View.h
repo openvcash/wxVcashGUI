@@ -34,8 +34,8 @@ namespace wxGUI {
     class HistoryPage;
     class MainFrame;
     class MainPanel;
+    enum class MainPage;
     class MiningPage;
-    enum class Page;
     class StatisticsPage;
     class StatusBarWallet;
     class StatusBar;
@@ -43,6 +43,7 @@ namespace wxGUI {
     class TransferPage;
     class ToolsFrame;
     class ToolsPanel;
+    enum class ToolsPage;
     class VcashApp;
     enum class WalletStatus;
 
@@ -58,7 +59,7 @@ namespace wxGUI {
         void setStatusBarWorking(bool working);
 
         // MainPanel
-        void showPage(Page page);
+        void showMainPage(MainPage page);
 
         // Account
         void setBalance(const std::string &balance);
@@ -119,9 +120,25 @@ namespace wxGUI {
 
         std::pair<bool, std::string> restoreHDSeed(VcashApp &vcashApp);
 
-        void showContextMenu(VcashApp &vcashApp, bool atClickPosition = true);
+        void runContextMenu(VcashApp &vcashApp, bool atClickPosition = true);
 
-        void showHideToolsFrame(bool showAlso = true);
+        // Main frame
+        void minimizeToTray();
+
+        void restoreFromTray();
+
+        void minimizeToRestoreFromTray();
+
+        // Tools frame
+        void showToolsFrame();
+
+        void hideToolsFrame();
+
+        void showHideToolsFrame();
+
+        // Tools panel
+
+        void showToolsPage(ToolsPage page);
 
         MainFrame *mainFrame;
         MainPanel *mainPanel;
