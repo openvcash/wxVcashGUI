@@ -234,6 +234,8 @@ void AddressesPage::emboldenAddress(const std::string &address, bool bold) {
             font.SetWeight(bold ? wxFONTWEIGHT_BOLD : wxFONTWEIGHT_NORMAL);
 #if defined(__WXOSX__)
             info.SetFont(font.Scaled(1.4));
+#else
+            info.SetFont(font);	    
 #endif
             // It seems we need to temporarily change colour in order to effectively change the font
             wxColour colour = info.GetBackgroundColour();
