@@ -39,10 +39,13 @@ ConsolePage::ConsolePage(VcashApp &vcashApp, wxWindow &parent)
 
 #if defined (__WXMSW__)
     wxFont fixedFont = wxFont(10, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas"));
+#elif defined (__WXOSX__)
+    wxFont fixedFont = wxFont(11, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Menlo"));
 #else
     wxFont fixedFont = wxFont(10, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 #endif
     output->SetFont(fixedFont);
+    output->SetEditable(false);
 
     command = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 

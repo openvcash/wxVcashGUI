@@ -27,22 +27,29 @@
 
 using namespace wxGUI;
 
+#if defined(__WXOSX__)
+#define STYLE wxCAPTION
+#else
+#define STYLE wxDEFAULT_DIALOG_STYLE
+#endif
+
 EntryDialog::EntryDialog( wxWindow &parent, const wxString &title
         , const std::vector<Entry> &entries
         , std::function<bool (EntryDialog &dlg)> validate)
         : textCtrls()
         , validatef(validate)
         , title(title)
-        , wxDialog(&parent, wxID_ANY, title) {
+        , wxDialog(&parent, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, STYLE) {
 
     SetIcon(Resources::vcashIcon);
+    CenterOnParent();
 
     const int cols = 2, vgap = 5, hgap = 10, border = 20;
     wxFlexGridSizer *fgs = new wxFlexGridSizer(cols, vgap, hgap);
 
     for(auto const& entry: entries) {
         fgs->Add(new wxStaticText(this, wxID_ANY, entry.label+":"), wxSizerFlags().Right());
-        wxTextCtrl *textCtrl = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, entry.size, entry.style | wxTE_PROCESS_ENTER );
+        wxTextCtrl *textCtrl = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, entry.size, entry.style);
         textCtrl->SetToolTip(entry.toolTip);
         fgs->Add(textCtrl, 1, wxRIGHT | wxEXPAND, border);
         textCtrls.push_back(textCtrl);
@@ -50,6 +57,7 @@ EntryDialog::EntryDialog( wxWindow &parent, const wxString &title
 
     wxButton *okButton = new wxButton(this, wxID_OK, wxT("Ok"));
     wxButton *cancelButton = new wxButton(this, wxID_CANCEL, wxT("Cancel"));
+    okButton->SetDefault();
 
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     hbox->Add(okButton);
@@ -66,6 +74,7 @@ EntryDialog::EntryDialog( wxWindow &parent, const wxString &title
     cancelButton->Bind(wxEVT_BUTTON, [this](wxCommandEvent &) { EndModal(wxID_CANCEL); });
     for(auto const& entry: textCtrls)
         entry->Bind(wxEVT_KEY_DOWN, &EntryDialog::onKeyPressed, this);
+        // toDO: ESCAPE key not working in OS X, as this event doesn't get bound
 }
 
 void EntryDialog::onReturnKeyPressed() {

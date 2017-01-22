@@ -13,9 +13,11 @@
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
+#include <wx/menu.h>
 #include <wx/sizer.h>
 #endif
 
+#include "ContextMenu.h"
 #include "MainFrame.h"
 #include "MainPanel.h"
 #include "OnPairsEvent.h"
@@ -78,14 +80,16 @@ MainFrame::MainFrame(VcashApp &vcashApp)
         ev.Skip();
     });
 
-    Bind(wxEVT_ICONIZE, [this, &vcashApp](wxIconizeEvent& ev) {
+    Bind(wxEVT_ICONIZE, [this, &vcashApp, toolsFrame](wxIconizeEvent& ev) {
         if(vcashApp.taskBarIconEnabled) {
             bool wantIconize = IsIconized();
             if(wantIconize) {
                 minimizeToTray();
             }
-        } else
+        } else {
+            toolsFrame->Hide();
             ev.Skip();
+        }
     });
 
     Bind(wxEVT_CLOSE_WINDOW, [this, &vcashApp](wxCloseEvent ev) {
@@ -98,6 +102,36 @@ MainFrame::MainFrame(VcashApp &vcashApp)
     Bind(wxEVT_SET_FOCUS, [mainPanel](wxFocusEvent &ev) {
         mainPanel->SetFocus();
     });
+
+#if defined (__WXOSX__)
+    wxMenuBar *menuBar = new wxMenuBar();
+    wxMenu *menu = menuBar->OSXGetAppleMenu();
+
+    menu->Insert(0, wxID_ABOUT, wxT("About"));
+    menu->InsertSeparator(1);
+    SetMenuBar(menuBar);
+
+    Bind(wxEVT_MENU, [this] (wxCommandEvent &ev) {
+        VcashApp &vcashApp = this->vcashApp;
+        int id = ev.GetId();
+        ContextMenu::MenuEntry selection;
+        switch (id) {
+            case wxID_ABOUT: {
+                selection = static_cast<ContextMenu::MenuEntry>(ContextMenu::MenuEntry::About);
+                break;
+            }
+            case wxID_EXIT: {
+                selection = static_cast<ContextMenu::MenuEntry>(ContextMenu::MenuEntry::Exit);
+                break;
+            }
+            default: {
+                selection = static_cast<ContextMenu::MenuEntry>(id);
+                break;
+            }
+        }
+        ContextMenu::processSelection(vcashApp, *vcashApp.view.mainFrame, selection);
+    });
+#endif
 };
 
 void MainFrame::minimizeToTray() {

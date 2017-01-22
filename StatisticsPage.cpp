@@ -61,11 +61,13 @@ StatisticsPage::StatisticsPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&
 
     SetSizerAndFit(sizerV);
 
+#if !defined (__WXOSX__)
     // This windows doesn't accept focus as it only shows information
     Bind(wxEVT_SET_FOCUS, [&parent](wxFocusEvent &ev) {
         parent.SetFocus();
         ev.Skip();
     });
+#endif
 }
 
 void StatisticsPage::setTCP(const std::string &tcp) {

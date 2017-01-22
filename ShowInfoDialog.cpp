@@ -21,9 +21,15 @@
 
 using namespace wxGUI;
 
+#if defined(__WXOSX__)
+#define STYLE wxCAPTION
+#else
+#define STYLE wxDEFAULT_DIALOG_STYLE
+#endif
+
 ShowInfoDialog::ShowInfoDialog(wxWindow &parent, const wxString &title, std::function<wxSizer *(void)> contents, int timeout)
         : closeTimer(this)
-        , wxDialog(&parent, wxID_ANY,  title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE) {
+        , wxDialog(&parent, wxID_ANY,  title, wxDefaultPosition, wxDefaultSize, STYLE) {
 
     wxButton *closeBt = new wxButton(this, wxID_CLOSE, wxT("Close"));
 
@@ -39,9 +45,11 @@ ShowInfoDialog::ShowInfoDialog(wxWindow &parent, const wxString &title, std::fun
     SetAffirmativeId(wxID_CLOSE);
     SetEscapeId(wxID_CLOSE);
 
+    closeBt->SetDefault();
     closeBt->SetFocus();
 
     SetIcon(Resources::vcashIcon);
+    CenterOnParent();
 
     if(timeout>=0)
         closeTimer.StartOnce(timeout);

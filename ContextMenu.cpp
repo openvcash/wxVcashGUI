@@ -108,8 +108,8 @@ void ContextMenu::processSelection(VcashApp &vcashApp, wxWindow &parent, MenuEnt
 }
 
 void ContextMenu::runContextMenu(VcashApp &vcashApp, wxWindow &parent, wxPoint pos) {
-    auto contextMenu = new ContextMenu(vcashApp);
-    auto select = parent.GetPopupMenuSelectionFromUser(*contextMenu, pos);
+    ContextMenu contextMenu(vcashApp);
+    auto select = parent.GetPopupMenuSelectionFromUser(contextMenu, pos);
     processSelection(vcashApp, parent, static_cast<MenuEntry>(select));
 }
 

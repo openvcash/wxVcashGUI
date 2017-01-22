@@ -140,7 +140,7 @@ bool VcashApp::OnCmdLineParsed(wxCmdLineParser& parser) {
 
 void VcashApp::parserURI(std::string uri) {
     bool schemeFound = false;
-    std::vector<std::string> schemes = { "vcash://", "vcash:" };
+    std::vector<std::string> schemes = { "vcash://", "vcash:", "xvc://", "xvc:" };
     for(auto const& scheme : schemes)
         if(Utils::isPrefix(scheme, uri)) {
             uri = uri.erase(0, scheme.length());

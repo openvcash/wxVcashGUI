@@ -68,6 +68,11 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
     SetSize(-1, iconSz+2);
     parent.SendSizeEvent();
 
+    #if defined (__WXOSX__)
+    wxFont font = wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    SetFont(font);
+    #endif
+
     activityIndicator = new wxActivityIndicator(this, wxID_ANY, wxDefaultPosition, wxSize(iconSz,iconSz));
 
     Bind(wxEVT_SIZE, [this, &vcashApp, toolsImg, settingsImg](wxSizeEvent &ev) {
@@ -78,7 +83,7 @@ StatusBar::StatusBar(VcashApp &vcashApp, wxWindow &parent, wxFrame &toolsFrame)
 #elif defined(__WXMSW__)
 #define ICON_OFFSET 0
 #elif defined(__WXOSX__)
-#define ICON_OFFSET 2.5
+#define ICON_OFFSET 0
 #else
 #error "You must define one of: __WXGTK__, __WXMSW__ or __WXOSX__"
 #endif

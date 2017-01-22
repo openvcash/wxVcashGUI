@@ -77,12 +77,20 @@ namespace wxGUI {
 
 using namespace wxGUI;
 
+#if defined (__WXGTK__)
+#define TOTAL_WIDTH 435
+#elif defined (__WXMSW__)
+#define TOTAL_WIDTH 420
+#elif defined (__WXOSX__)
+#define TOTAL_WIDTH 405
+#endif
+
 HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
         : transactions(), wxPanel(&parent) {
 
     vcashApp.view.historyPage = this;
 
-    listCtrl = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(435, wxDefaultSize.GetHeight()),
+    listCtrl = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(TOTAL_WIDTH, wxDefaultSize.GetHeight()),
                               wxLC_REPORT | wxLC_SINGLE_SEL | wxBORDER_NONE);
 
     auto addMargin = [](wxBitmap bm, bool rotate) {
@@ -205,7 +213,7 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
                 break;
             }
             case QR: {
-                new QRDialog(*this, wxT("QR transaction"), wxString(txid));
+                new QRDialog(*this, wxT("QR Transaction"), wxString(txid));
                 break;
             }
             default: {

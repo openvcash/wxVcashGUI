@@ -52,6 +52,14 @@ AccountPage::AccountPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&parent
     sizerV->Add(gridSizer, wxSizerFlags().Border(wxALL, hgap).Center());
 
     SetSizerAndFit(sizerV);
+
+#if !defined (__WXOSX__)
+    // This windows doesn't accept focus as it only shows information
+    Bind(wxEVT_SET_FOCUS, [&parent](wxFocusEvent &ev) {
+        parent.SetFocus();
+        ev.Skip();
+    });
+#endif
 }
 
 void AccountPage::setBalance(const std::string &balance) {

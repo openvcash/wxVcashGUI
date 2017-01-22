@@ -37,8 +37,12 @@ TransferPage::TransferPage(VcashApp &vcashApp, wxWindow &parent) : wxPanel(&pare
     amountValidator.SetRange(0, vcashMaxSupply);
 
     wxTextValidator addressValidator(wxFILTER_ALPHANUMERIC);
-
+#if defined(__WXOSX__)
+    // ToDo: validator doesn't work in OS X. In any case, we validate on Send button pressing
+    amountCtrl = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, 0 /*, amountValidator*/);
+#else
     amountCtrl = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, 0, amountValidator);
+#endif
     addressCtrl = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, 0 /*, addressValidator*/);
 
     zeroTimeCtrl = new wxCheckBox(this, wxID_ANY, wxT("ZeroTime"));

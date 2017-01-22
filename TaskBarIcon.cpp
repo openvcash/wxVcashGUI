@@ -34,7 +34,11 @@ TaskBarIcon::TaskBarIcon(VcashApp &vcashApp) : vcashApp(vcashApp), wxTaskBarIcon
 }
 
 bool TaskBarIcon::isEnabled() {
+#if defined(__WXOSX__)
+    return false;
+#else
     return wxTaskBarIcon::IsAvailable();
+#endif
 }
 
 void TaskBarIcon::disable() {
