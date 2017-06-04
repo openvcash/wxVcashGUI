@@ -9,7 +9,7 @@ In order to build wxVcashGUI, you will need to build firstly vcash.
 
 You can build vcash by using the script at:
 
-https://github.com/xCoreDev/vcash-scripts
+https://github.com/openvcash/vcash-scripts
 
 The resulting build will be located at ~/vcash/.
 
