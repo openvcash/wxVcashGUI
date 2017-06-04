@@ -75,7 +75,8 @@ TARGET_LINK_LIBRARIES(vcash
         ${VCASH_SRC_PATH}/deps/db/lib/libdb_cxx.a
 
         ${WXVCASHGUI_SRC_PATH}/deps/libqrencode/libqrencode.a
-
+        
+        Xxf86vm
         wx_gtk3u_richtext-3.1
         wx_gtk3u_adv-3.1
         wx_baseu_xml-3.1
