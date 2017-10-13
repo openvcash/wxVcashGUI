@@ -168,12 +168,12 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
     auto openMenu = [this, &vcashApp](long index, wxPoint pos) {
         std::string txid = *((std::string *) listCtrl->GetItemData(index));
         enum PopupMenu {
-            BlockExperts, VcashExplorer, Copy, Info, Lock, QR
+            VcashExplorer, VcashProjectExplorer, Copy, Info, Lock, QR
         };
 
         wxMenu *explorers = new wxMenu();;
-        explorers->Append(BlockExperts, wxT("Block Experts"));
         explorers->Append(VcashExplorer, wxT("Vcash Explorer"));
+        explorers->Append(VcashProjectExplorer, wxT("Vcash Project Explorer"));
 
         wxMenu popupMenu;
         popupMenu.AppendSubMenu(explorers, wxT("&Block explorer"));
@@ -186,12 +186,12 @@ HistoryPage::HistoryPage(VcashApp &vcashApp, wxWindow &parent)
 
         auto select = GetPopupMenuSelectionFromUser(popupMenu, pos);
         switch (select) {
-            case BlockExperts: {
-                wxLaunchDefaultBrowser(BlockExperts::transactionURL(txid));
-                break;
-            }
             case VcashExplorer: {
                 wxLaunchDefaultBrowser(VcashExplorer::transactionURL(txid));
+                break;
+            }
+            case VcashProjectExplorer: {
+                wxLaunchDefaultBrowser(VcashProjectExplorer::transactionURL(txid));
                 break;
             }
             case Copy: {

@@ -22,14 +22,14 @@ namespace wxGUI {
         static std::string transactionURL(const std::string &txid);
     };
 
-    class BlockExperts : public BlockExplorer {
+    class VcashExplorer : public BlockExplorer {
     public:
         static const std::string URL;
         static std::string addressURL(const std::string &addr);
         static std::string transactionURL(const std::string &txid);
     };
 
-    class VcashExplorer : public BlockExplorer {
+    class VcashProjectExplorer : public BlockExplorer {
     public:
         static const std::string URL;
         static std::string addressURL(const std::string &addr);
